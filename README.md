@@ -11,4 +11,4 @@
 # Nim
 ### Plays nim optimally. Always wins if given a board with nimsum zero and prolongs games in losing positions.
 ### Offers rematches, alternating who moves first, and keeping track of the score.
-### PvP mode alse available
+### PvP mode also available
