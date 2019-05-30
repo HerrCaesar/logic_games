@@ -7,9 +7,9 @@ class Series
     @record = record
   end
 
-  def new_game(which_leading, midgame_data = {})
+  def new_game(id_of_leader, midgame_data = {})
     @game = if @vs_ai
-              if @names[which_leading] == '_computer'
+              if @names[id_of_leader] == '_computer'
                 AILead.new(midgame_data)
               else AIFollow.new(midgame_data)
               end

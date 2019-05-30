@@ -6,7 +6,7 @@ require_relative 'helpers.rb'
 # Creates series of games between 2 players or between player and computer
 class MastermindSeries < Series
   def choose_secret(which_player)
-    @game.choose_secret_word(@names[which_player])
+    @game.choose_secret_code(@names[which_player])
   end
 
   def take_turn(which_player)

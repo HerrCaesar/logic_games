@@ -1,18 +1,12 @@
-# TODO: saves
+# frozen_string_literal: true
+
 require './models/nim_and_ttt_series.rb'
+require_relative 'controller_turn_based.rb'
 
 # Controls tic-tac-toe series
-class TicTacToe < Controller
+class TicTacToe < TurnBased
   def initialize
     setup(TicTacToeSeries)
-  end
-
-  private
-
-  def play_round
-    whose_go = @leading_player ^= 1
-    game_over ||= @series.take_turn(whose_go ^= 1) until game_over
-    game_over == 'saved' || !continue_to_next_game?
   end
 end
 

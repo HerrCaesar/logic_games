@@ -9,17 +9,6 @@ class Controller
 
   private
 
-  def setup_round
-    @series.new_game(@leading_player) unless @midgame
-    # Non-leading player chooses secret in hangman & mastermind; otherwise nil.
-    @series.choose_secret(@leading_player ^ 1)
-  end
-
-  def play_round
-    game_over ||= @series.take_turn(@leading_player) until game_over
-    game_over == 'saved' || !continue_to_next_game?
-  end
-
   def setup(s_class, options = nil, offer_load = true)
     if (saved = saved_games_available) && offer_load && load_series?
       return setup(s_class, options, false) unless (old_game = pick_game(saved))
@@ -28,6 +17,17 @@ class Controller
     else
       create_series(s_class)
     end
+  end
+
+  def setup_round
+    @series.new_game(@id_of_leader) unless @midgame
+    # Non-leading player chooses secret in hangman & mastermind; otherwise nil.
+    @series.choose_secret(@id_of_leader ^ 1)
+  end
+
+  def play_round
+    game_over ||= @series.take_turn(@id_of_leader) until game_over
+    game_over == 'saved' || !continue_to_next_game?
   end
 
   def saved_games_available
@@ -59,18 +59,18 @@ class Controller
 
   def load_existing_series(s_class, old_game)
     # Get index of next player due to guess
-    @leading_player = old_game['record'].length % 2
+    @id_of_leader = old_game['record'].length % 2
     @series =
       s_class.new(*old_game.slice('vs_ai', 'names', 'options', 'record').values)
-    return unless (@midgame = !old_game['midgame_data'].empty?)
+    return unless midgame?(old_game['midgame_data'])
 
-    @series.new_game(@leading_player, old_game['midgame_data'])
+    @series.new_game(@id_of_leader, old_game['midgame_data'])
   end
 
   def create_series(s_class, options = {})
     names = organize_teams
     vs_ai = vs_ai?
-    @leading_player = 0
+    @id_of_leader = 0
     names = set_second_name(vs_ai, names)
     @series = s_class.new(vs_ai, names, options)
   end
@@ -96,6 +96,10 @@ class Controller
     end
   end
 
+  def midgame?(midgame_data)
+    @midgame = !midgame_data.empty?
+  end
+
   def hash_of_game_data
     Hash[instance_variables.map { |name| [name, instance_variable_get(name)] }]
   end
@@ -109,7 +113,7 @@ class Controller
     when /[sS]/
       @series.save_game
     else
-      @leading_player ^= 1
+      @id_of_leader ^= 1
       @midgame = false
       return true
     end

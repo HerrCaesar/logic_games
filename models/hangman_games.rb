@@ -227,7 +227,7 @@ class AILead < Hangman
     ins = gets
     return get_fb(true) if ins =~ /[hH]/
 
-    return save_game if ins =~ /[sS]/
+    return save_game if ins =~ /[sScC]/
 
     parse_fb(ins)
   end

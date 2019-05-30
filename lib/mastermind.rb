@@ -1,4 +1,3 @@
-# TODO: saves
 # frozen_string_literal: true
 
 require_relative './models/mastermind_series.rb'

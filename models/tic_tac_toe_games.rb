@@ -1,28 +1,14 @@
-# TODO: midgames saves
 # Shared methods between PvP and PvC games
 class TicTacToeGame
-  def initialize(midgame_data)
-    @board = Array.new(9) { 0 }
-    p
-  end
-
-  def p
-    @board.each_with_index do |x, i|
-      print [' ', 'x', 'o'][Integer.sqrt(x)] + (i % 3 == 2 ? "\n" : '|')
-    end
-  end
-
-  def user_move(player_id)
-    case ask_for_move.length
-    when 1
-      return user_move(player_id) unless (cel = parse_for_number(in_a))
-    when 2
-      return user_move(player_id) unless (cel = parse_for_description(in_a))
+  def initialize(midgame_data = {})
+    if midgame_data.empty?
+      @board = Array.new(9) { 0 }
     else
-      puts 'Enter two words, or the cell number from 1 to 9.'
-      return user_move(player_id)
+      @board = midgame_data['board']
+      @line_sums = midgame_data['line_sums']
+      @moves_made = midgame_data['moves_made']
     end
-    cell_empty?(cel) ? draw(cel, player_id) : user_move(player_id)
+    p
   end
 
   def game_over?(which, who)
@@ -38,17 +24,42 @@ class TicTacToeGame
 
   private
 
+  def p
+    @board.each_with_index do |x, i|
+      print [' ', 'x', 'o'][Integer.sqrt(x)] + (i % 3 == 2 ? "\n" : '|')
+    end
+  end
+
+  def user_move(player_id, who)
+    return (choice = ask_for_move(who)) if choice.is_a? Hash
+
+    case choice.length
+    when 1
+      return user_move(player_id, who) unless (cel = parse_for_number(choice))
+    when 2
+      return user_move(player_id, who) unless (cel = parse_for_descrip(choice))
+    else
+      puts 'Enter two words, or the cell number from 1 to 9.'
+      return user_move(player_id, who)
+    end
+    cell_empty?(cel) ? draw(cel, player_id) : user_move(player_id, who)
+  end
+
   def draw(cel, player_id)
     @board[cel] = player_id
     arr = [cel / 3, cel % 3 + 3]
     arr << 6 if (cel % 4).zero?
     arr << 7 if [2, 4, 6].include?(cel)
     arr.each { |line| @line_sums[line] += player_id }
+    nil
   end
 
-  def ask_for_move
-    puts 'Describe (eg top left), or pick a number, 1-9:'
-    gets.chomp.split.map { |x| x[0].downcase }
+  def ask_for_move(who)
+    print "#{who}, describe (eg top left), or pick a number, 1-9. "
+    puts 'Or save and close the game.'
+    return save_game if /(save|close)/.match?(choice = gets)
+
+    choice.strip.split.map { |x| x[0].downcase }
   end
 
   def parse_for_number(in_a)
@@ -62,7 +73,7 @@ class TicTacToeGame
     end
   end
 
-  def parse_for_description(in_a)
+  def parse_for_descrip(in_a)
     in_a.reverse! if %w[t b].include?(in_a[1]) || %w[l r].include?(in_a[0])
     begin
       in_a.map! { |letter| %w[t l m c b r].index(letter) / 2 }
@@ -82,13 +93,20 @@ class TicTacToeGame
       false
     end
   end
+
+  def save_game
+    {
+      board: @board,
+      moves_made: @moves_made,
+      line_sums: @line_sums
+    }
+  end
 end
 
 # Takes moves from two players, displays them and tests win-conditions
 class PvP < Game
   def move(which, who)
-    print "#{who}... "
-    user_move([1, 4][which])
+    user_move([1, 4][which], who)
   end
 end
 
@@ -180,8 +198,7 @@ class AILead < PvC
   def move(_which, who)
     return ai_move(1) if @moves_made.even?
 
-    print "#{who}... "
-    user_move(4)
+    user_move(4, who)
   end
 end
 
@@ -190,7 +207,6 @@ class AIFollow < PvC
   def move(_which, who)
     return ai_move(4) if @moves_made.odd?
 
-    print "#{who}... "
-    user_move(1)
+    user_move(1, who)
   end
 end
