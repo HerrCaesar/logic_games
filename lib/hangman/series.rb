@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'hangman_games.rb'
+require_relative 'games.rb'
 
 # Creates series of games between 2 players or between player and computer
 class HangmanSeries < Series
@@ -12,7 +12,7 @@ class HangmanSeries < Series
     @game.print_clue
     @game.print_guesses
     midgame_data = @game.guess(@names[which_player])
-    return save_game(midgame_data) if midgame_data
+    return save_game(midgame_data) if midgame_data.is_a? Hash
 
     @game.draw_hanging
     over = @game.game_over?(@names[which_player])

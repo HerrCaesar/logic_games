@@ -3,24 +3,26 @@
 # General formula for running a series of games
 class Controller
   def do_a_round
-    setup_round
+    setup_round unless @midgame
     play_round
   end
 
   private
 
   def setup(s_class, options = nil, offer_load = true)
-    if (saved = saved_games_available) && offer_load && load_series?
-      return setup(s_class, options, false) unless (old_game = pick_game(saved))
+    saved = saved_games_available(s_class.name)
+    if saved.any? && offer_load && load_series?
+      old_game = pick_game(saved)
+      return setup(s_class, options, false) unless old_game
 
-      load_existing_series(old_game)
+      load_existing_series(s_class, old_game)
     else
       create_series(s_class)
     end
   end
 
   def setup_round
-    @series.new_game(@id_of_leader) unless @midgame
+    @series.new_game(@id_of_leader)
     # Non-leading player chooses secret in hangman & mastermind; otherwise nil.
     @series.choose_secret(@id_of_leader ^ 1)
   end
@@ -30,12 +32,12 @@ class Controller
     game_over == 'saved' || !continue_to_next_game?
   end
 
-  def saved_games_available
+  def saved_games_available(s_class)
     return false unless File.exist?('saved.json')
 
     require 'json'
     JSON.parse(File.read('saved.json')).select do |_k, game|
-      game['game'] == self.class.name
+      game['game'] == s_class
     end.sort.to_h
   end
 
@@ -46,12 +48,12 @@ class Controller
 
   def pick_game(saved)
     puts 'Which game do you want to load? (or just press enter to cancel)'
-    saved.each_with_index { |(key, _value), index| puts "(#{index}) #{key}" }
+    saved.each_with_index { |(key, _val), index| puts "(#{index + 1}) #{key}" }
     ins = gets.chomp
     return false if ins.empty?
 
     if /^\d+$/.match? ins
-      saved[saved.keys[ins.to_i]] || pick_game(saved)
+      saved[saved.keys[ins.to_i - 1]] || pick_game(saved)
     else
       saved[ins] || pick_game(saved)
     end
@@ -68,8 +70,8 @@ class Controller
   end
 
   def create_series(s_class, options = {})
-    names = organize_teams
     vs_ai = vs_ai?
+    names = organize_teams(vs_ai)
     @id_of_leader = 0
     names = set_second_name(vs_ai, names)
     @series = s_class.new(vs_ai, names, options)
@@ -80,16 +82,21 @@ class Controller
     /1/.match? gets
   end
 
-  def organize_teams
+  def organize_teams(vs_ai)
     puts "What's your name?"
-    [(gets.strip || 'Player 1').capitalize]
+    name = (gets.strip || 'Player 1').capitalize
+    if name == 'Computer' && vs_ai
+      puts "Hey that's my name! get your own."
+      return organize_teams(vs_ai)
+    end
+    [name]
   end
 
   def set_second_name(vs_ai, names)
     if vs_ai
-      names << '_computer'
-      puts 'Do you want to guess first in game 1?'
-      /[yY]/.match? gets ? names.reverse! : names
+      names << 'Computer'
+      puts 'Do you want to go first to begin with?'
+      /[yY]/.match?(gets) ? names : names.reverse!
     else
       puts "What's player 2's name?"
       names << (gets.strip || 'Player 2').capitalize

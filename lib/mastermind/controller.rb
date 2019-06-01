@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './models/mastermind_series.rb'
+require_relative 'series.rb'
 
 # Controls Mastermind series. Special because # of holes & colours needs setting
 class Mastermind < Controller
@@ -16,16 +16,16 @@ class Mastermind < Controller
 
   def choose_holes_and_colours
     puts 'Enter how many holes and colours you want, or use the default (4, 6).'
-    return default_holes_and_colours if (ins = gets.chomp.split).length != 2
+    return default_holes_and_colours if (in_s = gets.chomp.split).length != 2
 
-    return default_holes_and_colours if ins.map!(&:to_i).any? { |int| int < 1 }
+    return default_holes_and_colours if in_s.map!(&:to_i).any? { |int| int < 1 }
 
-    if ins[1] > 8
-      ins[1] = 8
+    if in_s[1] > 8
+      in_s[1] = 8
       puts 'The game only supports 8 colours.'
     end
 
-    { holes: ins[0], colours: ins[1] }
+    { holes: in_s[0], colours: in_s[1] }
   end
 
   def default_holes_and_colours

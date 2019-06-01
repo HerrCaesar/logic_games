@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'mastermind_games.rb'
+require_relative 'games.rb'
 require_relative 'helpers.rb'
 
 # Creates series of games between 2 players or between player and computer
@@ -11,7 +11,7 @@ class MastermindSeries < Series
 
   def take_turn(which_player)
     midgame_data = @game.guess(@names[which_player])
-    return save_game(midgame_data) if midgame_data
+    return save_game(midgame_data) if midgame_data.is_a? Hash
 
     over = @game.game_over?(@names[which_player])
     @record << [which_player, over] if over

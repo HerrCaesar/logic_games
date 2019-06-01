@@ -21,7 +21,8 @@ class GuessArr < Array
     return false if empty?
 
     map do |part|
-      return false unless (match = match_guess(part, symbols))
+      match = match_guess(part, symbols)
+      return false unless match
 
       match
     end

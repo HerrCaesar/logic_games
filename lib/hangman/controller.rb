@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './models/hangman_series.rb'
+require_relative 'series.rb'
 
 # Controls Hangman series. Special because non-leading player chooses secret
 class Hangman < Controller

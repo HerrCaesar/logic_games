@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Make an array  with some methods that allow it to play nim
+# Make an array with some methods that allow it to play nim
 class NimGame < Array
   def initialize(size, midgame_data = {})
     if midgame_data.empty?
@@ -13,25 +13,24 @@ class NimGame < Array
     p
   end
 
-  def move(who)
+  def move(player_id, who)
     # Wait for appropriate user response then call take
-    return (choice = ask_for_move(who)) if choice.is_a? Hash
+    choice = ask_for_move(player_id, who)
+    return choice if choice.is_a? Hash
 
-    return move(who) if choice.length != 2 ||
-                        choice.any? { |x| x < 1 } ||
-                        choice[0] >= self[choice[1]]
+    return move(player_id, who) if choice.length != 2 ||
+                                   choice.any? { |x| x < 1 } ||
+                                   choice[0] > self[choice[1] - 1]
 
     take(choice[0], choice[1] - 1)
   end
 
-  def game_over?(which, who)
+  def game_over?(player_id, who)
     return false unless all?(&:zero?)
 
     puts "\n#{who} wins!"
-    which
+    player_id
   end
-
-  private
 
   def p
     # Print graphical representation of Nim
@@ -44,36 +43,38 @@ class NimGame < Array
     end
   end
 
+  private
+
   def take(count, row)
     # Remove <count> pips from row <row>
     self[row] -= count
     nil
   end
 
-  def ask_for_move(who)
+  def ask_for_move(player_id, who)
     print "\n#{who}, enter how many to take, then which heap (eg '1 3'). "
     puts 'Or save and close the game.'
-    return save_game(who) if /(save|close)/.match?(choice = gets)
+    return save_game(player_id) if /(save|close)/.match?(choice = gets)
 
-    choice.strip.split.map!(&:to_i)
+    choice.strip.split.map(&:to_i)
   end
 
-  def save_game(who)
+  def save_game(player_id)
     {
       nim: self,
-      to_move: who
+      to_move: player_id
     }
   end
 end
 
 # Game between two users
-class PvP < Nim
+class PvP < NimGame
 end
 
 # Game against computer
-class PvC < Nim
-  def move(who)
-    who == '_computer' ? ai_move : super(who)
+class PvC < NimGame
+  def move(player_id, who)
+    who == 'Computer' ? ai_move : super(player_id, who)
   end
 
   def ai_move

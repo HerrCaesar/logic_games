@@ -9,7 +9,7 @@ class Series
 
   def new_game(id_of_leader, midgame_data = {})
     @game = if @vs_ai
-              if @names[id_of_leader] == '_computer'
+              if @names[id_of_leader] == 'Computer'
                 AILead.new(midgame_data)
               else AIFollow.new(midgame_data)
               end
@@ -25,7 +25,7 @@ class Series
     require 'json'
     saved = File.exist?('saved.json') ? JSON.parse(File.read('saved.json')) : {}
     series_name = choose_series_name(saved)
-    saved[series_name] = save_hash(game_num, midgame_data)
+    saved[series_name] = save_hash(midgame_data)
     File.write('saved.json', saved.to_json)
     'saved'
   end
@@ -44,12 +44,13 @@ class Series
   def save_hash(midgame_data)
     h = { game: self.class.name, midgame_data: midgame_data, options: {} }
     instance_variables.each do |var|
-      if %w[@vs_ai @names @record].include?(var)
+      if %i[@vs_ai @names @record].include?(var)
         h[de_instantize(var)] = instance_variable_get(var)
-      else
+      elsif var != :@game
         h[:options][de_instantize(var)] = instance_variable_get(var)
       end
     end
+    h
   end
 
   def de_instantize(var)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative './models/nim_and_ttt_series.rb'
-require_relative 'controller_turn_based.rb'
+require_relative 'series.rb'
+require_relative '../controller_turn_based.rb'
 
 # Controls Nim series. Special because number of heaps needs setting
 class Nim < TurnBased

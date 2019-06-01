@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require './models/nim_and_ttt_series.rb'
-require_relative 'controller_turn_based.rb'
+require_relative 'series.rb'
+require_relative '../controller_turn_based.rb'
 
 # Controls tic-tac-toe series
 class TicTacToe < TurnBased
