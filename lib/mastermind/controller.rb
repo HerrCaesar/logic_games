@@ -33,5 +33,5 @@ class Mastermind < Controller
   end
 end
 
-controller = Hangman.new
+controller = Mastermind.new
 end_series ||= controller.do_a_round until end_series

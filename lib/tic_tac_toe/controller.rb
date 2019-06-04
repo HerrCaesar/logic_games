@@ -8,6 +8,12 @@ class TicTacToe < TurnBased
   def initialize
     setup(TicTacToeSeries)
   end
+
+  private
+
+  def whose_go
+    (@midgame ? @midgame ^ @id_of_leader : @id_of_leader) ^ 1
+  end
 end
 
 controller = TicTacToe.new

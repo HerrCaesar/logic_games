@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # Shared methods between all individual games of hangman
-class Hangman
+class HangmanGame
+  DICTONARY = File.expand_path('../../static/dictionary.txt', __dir__).freeze
   def initialize(midgame_data)
     @mistakes = midgame_data['mistakes'] || 0
     @guesses = midgame_data['guesses'] || []
@@ -47,7 +48,7 @@ class Hangman
 end
 
 # Methods shared by gametypes where a user guesses the secret word
-class UserGuess < Hangman
+class UserGuess < HangmanGame
   def guess(who)
     ins = get_guess(who)
     return save_game if ins =~ /(save|close)/
@@ -55,7 +56,7 @@ class UserGuess < Hangman
     ins = ins[0]
     if @guesses.include?(ins)
       puts "You already guessed '#{ins}'!"
-      return user_guess(who)
+      return guess(who)
     end
     @mistakes += 1 unless /#{ins}/.match(@shh_word)
     @guesses << ins
@@ -102,7 +103,7 @@ class PvP < UserGuess
   end
 
   def in_dictionary?
-    File.open('dictionary.txt').each_line.any? do |l|
+    File.open(DICTONARY).each_line.any? do |l|
       l.downcase == "#{@shh_word}\n"
     end
   end
@@ -111,14 +112,14 @@ end
 # Contols game in which user guesses computer's randomly chosen secret word
 class AIFollow < UserGuess
   def choose_secret_word(_randomly)
-    @shh_word = File.readlines('dictionary.txt').keep_if do |line|
+    @shh_word = File.readlines(DICTONARY).keep_if do |line|
       line.length > 3 # Words < 4 letters are impossible, even w/ perfect play
     end.sample.strip.downcase
   end
 end
 
 # Controls game where user chooses word and AI guesses it
-class AILead < Hangman
+class AILead < HangmanGame
   def initialize(midgame_data)
     @mistakes = midgame_data['mistakes'] || 0
     @guesses = midgame_data['guesses'] || []
@@ -178,13 +179,13 @@ class AILead < Hangman
 
   def create_initial_possibilities
     key_length = @shh_word.length + 1
-    @poss = File.readlines('dictionary.txt').map do |l|
+    @poss = File.readlines(DICTONARY).map do |l|
       l.strip.downcase if l.length == key_length
     end.compact
   end
 
   def all_words
-    File.readlines('dictionary.txt').map { |l| l.strip.downcase }
+    File.readlines(DICTONARY).map { |l| l.strip.downcase }
   end
 
   def commonest_unused_letter(words)

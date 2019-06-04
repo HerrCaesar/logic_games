@@ -19,6 +19,7 @@ class Series
 
   def p(p1_ws, p2_ws)
     puts "#{@names[0]} - #{p1_ws}; #{@names[1]} - #{p2_ws}."
+    puts 'Rematch, save or exit?'
   end
 
   def save_game(midgame_data = {})

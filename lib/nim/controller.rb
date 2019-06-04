@@ -15,6 +15,10 @@ class Nim < TurnBased
     super(s_class, user_choose_heaps)
   end
 
+  def whose_go
+    @midgame ? @midgame ^ 1 : @id_of_leader
+  end
+
   def user_choose_heaps
     puts "How many heaps? (Or type 'r' for random.)"
     heaps = gets.chomp.to_i

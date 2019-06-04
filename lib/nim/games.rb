@@ -39,7 +39,7 @@ class NimGame < Array
     each_with_index do |x, i|
       output = ''
       x.times { output += dot + ' ' }
-      puts "#{i + 1} #{output.center(width)}"
+      puts "#{(i + 1).to_s.ljust(2)} #{output.center(width)}"
     end
   end
 
@@ -48,7 +48,7 @@ class NimGame < Array
   def take(count, row)
     # Remove <count> pips from row <row>
     self[row] -= count
-    nil
+    true
   end
 
   def ask_for_move(player_id, who)
@@ -80,11 +80,11 @@ class PvC < NimGame
   def ai_move
     # Computer chooses move and makes it by calling take
     puts "\nComputer's go:"
-    return if try_trivials
+    return if find_trivials
 
     return least_impact if (ns = nimsum).zero?
 
-    val, row = each_with_index.reject { |(x)| (1 << place(ns) & x).zero? }.max
+    val, row = each_with_index.find { |(x)| bin_down(ns) & x > 0 }
     take(val - (val ^ ns), row)
   end
 
@@ -94,38 +94,25 @@ class PvC < NimGame
     inject(0) { |xor, x| xor ^ x }
   end
 
-  def try_trivials
-    choice = nil
-    ones = 0
-    each_with_index do |x, i|
-      if x > 1
-        return false if choice
-
-        choice = [x, i]
-      else
-        ones = ones ^ 1
-      end
+  def find_trivials
+    longs = each_with_index.select { |(x)| x > 1 }
+    if longs.length == 1
+      take(longs[0][0] - (count { |x| x > 0 }.even? ? 0 : 1), longs[0][1])
+    else false
     end
-    choice ? take(choice[0] - ones, choice[1]) : take(1, index(1))
-    true
   end
 
   def least_impact
     shift = 0
     loop do
-      _val, ind = each_with_index.select { |(x)| 1 << shift & x }.max
+      _val, ind = each_with_index.select { |(x)| 1 << shift & x > 0 }.max
       return take(1, ind) if ind
 
       shift += 1
     end
   end
 
-  def place(int)
-    i = -1
-    until int.zero?
-      i += 1
-      int = int >> 1
-    end
-    i
+  def bin_down(int)
+    2**Math.log2(int).floor
   end
 end

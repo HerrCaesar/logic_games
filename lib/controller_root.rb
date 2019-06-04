@@ -16,8 +16,7 @@ class Controller
       return setup(s_class, options, false) unless old_game
 
       load_existing_series(s_class, old_game)
-    else
-      create_series(s_class)
+    else create_series(s_class)
     end
   end
 
@@ -36,8 +35,8 @@ class Controller
     return false unless File.exist?('saved.json')
 
     require 'json'
-    JSON.parse(File.read('saved.json')).select do |_k, game|
-      game['game'] == s_class
+    JSON.parse(File.read('saved.json')).select do |_k, gameclass|
+      gameclass['game'] == s_class
     end.sort.to_h
   end
 
@@ -54,8 +53,7 @@ class Controller
 
     if /^\d+$/.match? ins
       saved[saved.keys[ins.to_i - 1]] || pick_game(saved)
-    else
-      saved[ins] || pick_game(saved)
+    else saved[ins] || pick_game(saved)
     end
   end
 
@@ -113,7 +111,6 @@ class Controller
 
   def continue_to_next_game?
     @series.p
-    puts 'Rematch, save or exit?'
     case gets
     when /[eE]/
       nil
@@ -121,9 +118,7 @@ class Controller
       @series.save_game
     else
       @id_of_leader ^= 1
-      @midgame = false
-      return true
+      return !(@midgame = false)
     end
-    false
   end
 end
