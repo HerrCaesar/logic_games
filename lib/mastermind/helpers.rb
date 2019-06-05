@@ -18,7 +18,7 @@ class Integer
   end
 end
 
-# Handle guesses once converted to array of integers
+# Handle guesses once converted to array of integers. + Partition implementation
 class Array
   def part_iter
     [dup] + if self[0] > self[1]
@@ -112,8 +112,10 @@ end
 
 # Improve readability when parsing guesses by using method chaining
 class Guess < Array
+  attr_accessor :save_instead
   def initialize(made_earlier = nil)
     str = made_earlier || gets
+    @save_instead = /(save|close)/.match?(str)
     super(str.strip.downcase.split)
   end
 
@@ -126,10 +128,10 @@ class Guess < Array
     end
   end
 
-  def map_2_inds(symbols)
+  def map_2_inds!(symbols)
     return false if empty?
 
-    map do |part|
+    map! do |part|
       match = match_guess(part, symbols)
       return false unless match
 

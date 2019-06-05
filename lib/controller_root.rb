@@ -28,7 +28,7 @@ class Controller
 
   def play_round
     game_over ||= @series.take_turn(@id_of_leader) until game_over
-    game_over == 'saved' || !continue_to_next_game?
+    game_over == 'saved' || stop_playing?
   end
 
   def saved_games_available(s_class)
@@ -109,16 +109,16 @@ class Controller
     Hash[instance_variables.map { |name| [name, instance_variable_get(name)] }]
   end
 
-  def continue_to_next_game?
+  def stop_playing?
     @series.p
     case gets
     when /[eE]/
-      nil
+      true
     when /[sS]/
       @series.save_game
     else
       @id_of_leader ^= 1
-      return !(@midgame = false)
+      @midgame = false
     end
   end
 end

@@ -51,7 +51,7 @@ end
 class UserGuess < HangmanGame
   def guess(who)
     ins = get_guess(who)
-    return save_game if ins =~ /(save|close)/
+    return save_game if /(save|close)/.match? ins
 
     ins = ins[0]
     if @guesses.include?(ins)

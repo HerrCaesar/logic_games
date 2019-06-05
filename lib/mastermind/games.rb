@@ -6,10 +6,11 @@ require 'io/console'
 # Sets up the game and responds to guesses
 class MastermindGame
   COLOURS = %i[red blue green yellow cyan white light_magenta black].freeze
-  def initialize(holes = 2, colours_i = 3, midgame_data = {})
-    @colours_i = colours_i
-    @max_guesses = ((holes * colours_i)**0.6).round
+  def initialize(holes = 2, colours_len = 3, midgame_data = {})
+    @colours_len = colours_len
+    @max_guesses = ((holes * colours_len)**0.6).round
     @guesses = midgame_data['guesses'] || []
+    @code = midgame_data['code']
     @game_over = false
   end
 
@@ -20,16 +21,16 @@ class MastermindGame
   private
 
   def list_colours
-    (0...@colours_i).each do |i|
+    (0...@colours_len).each do |i|
       colour = COLOURS[i]
       print "#{colour.underline_first.colorize(colour)} "
     end
     puts
   end
 
-  def display_guess(the_guess)
+  def display_guess(the_guess, guesses_taken = @guesses.length)
     dot = "\u25Cf".encode('utf-8')
-    print "\r\e[1A\r#{(@max_guesses - @guesses.length + 1).to_s.rjust(2)}  "
+    print "#{(@max_guesses - guesses_taken).to_s.rjust(2)}  "
     the_guess.each { |i| print "#{dot.colorize(COLOURS[i])}  " }
   end
 
@@ -65,15 +66,25 @@ class MastermindGame
     else continue?
     end
   end
+
+  def save_game
+    {
+      code: @code,
+      guesses: @guesses,
+      game_over: @game_over
+    }
+  end
 end
 
 # User chooses secret code and AI guesses it
 class AILead < MastermindGame
-  def initialize(holes = 2, colours_i = 3, midgame_data = {})
+  def initialize(holes = 2, colours_len = 3, midgame_data = {})
     super
-    @all_valid = generate_valid_codes(holes, colours_i)
+    @all_valid = generate_valid_codes(holes)
     @poss = midgame_data['poss'] || @all_valid.dup
+    @all_cattle = midgame_data['all_cattle'] || []
     @code = Array.new(holes)
+    reprint_previous_guesses unless midgame_data.empty?
   end
 
   def choose_secret_code(_holes, who)
@@ -101,23 +112,22 @@ class AILead < MastermindGame
     get_best_option(options_with_group_sizes)
   end
 
-  def generate_valid_codes(holes, colours)
-    (0...colours).to_a.repeated_permutation(holes).to_a
+  def generate_valid_codes(holes)
+    (0...@colours_len).to_a.repeated_permutation(holes).to_a
   end
 
   def first_guess
     require_relative 'ofmg.rb'
     holes = @all_valid[0].length
-    colours = (@all_valid.length**(1.0 / holes)).round
-    cached_generator = OPTIMAL_MOVE1_GENERATORS[[holes, colours]]
+    cached_generator = OPTIMAL_MOVE1_GENERATORS[[holes, @colours_len]]
     return generate_guess(cached_generator) if cached_generator
 
-    find_optimal_first_move(holes, colours)
+    find_optimal_first_move(holes)
   end
 
-  def find_optimal_first_move(holes, colours)
+  def find_optimal_first_move(holes)
     partitions = holes.partition
-    partitions.keep_if { |p| p.length <= colours } if colours < holes
+    partitions.keep_if { |p| p.length <= @colours_len } if @colours_len < holes
     choices = partitions.map { |partition| generate_guess(partition) }
     pick_most_instructive_code(choices)
   end
@@ -132,23 +142,25 @@ class AILead < MastermindGame
     cattle = get_feedback(verbose)
     return cattle if cattle.is_a? Hash # ie contains save-data
 
+    @all_cattle << cattle
     @poss.keep_if { |code| code.compare_cattle(the_guess, cattle) }
   end
 
   def get_feedback(verbose = false)
     ask_for_feedback(verbose)
-    case (in_s = gets_without_return)
+    in_s = gets_without_return
+    print "\b" * (padding = (verbose ? 267 : 39) + in_s.length)
+    case in_s
     when /[hH]/
       get_feedback(true)
     when /[sScC]/
       save_game
-    else parse_feedback(in_s, (verbose ? 267 : 78) + in_s.length)
+    else parse_feedback(in_s, padding)
     end
   end
 
   def ask_for_feedback(verbose = false)
-    print 'Compare the guess to your secret code; enter the number of bulls,'\
-          ' then cows'
+    print 'Enter the number of bulls, then cows'
     if verbose
       print '. A bull is a pair of dots, one in the guess, one in your code, '\
             'with the same colour and position. A cow is a pair that are the '\
@@ -174,15 +186,14 @@ class AILead < MastermindGame
     end
   end
 
-  def parse_feedback(in_s, instruction_length)
-    print "\b" * instruction_length
-    return display_feedback(0, instruction_length) if in_s.empty?
+  def parse_feedback(in_s, padding)
+    return display_feedback(0, 0, padding) if in_s.empty?
 
     cattle = in_s.scan(/\d/).map(&:to_i)
     return get_feedback(true) if cattle.length != 2 ||
                                  cattle.any?(&:negative?) || cattle.sum > 4
 
-    display_feedback(*cattle, instruction_length)
+    display_feedback(*cattle, padding)
     cattle
   end
 
@@ -196,23 +207,54 @@ class AILead < MastermindGame
       spaceship
     end[0]
   end
+
+  def save_game
+    puts
+    print 'Saving game. '
+    super.merge(poss: @poss, all_cattle: @all_cattle)
+  end
+
+  def reprint_previous_guesses
+    list_colours
+    @guesses.each_with_index do |guess, i|
+      display_guess(guess, i + 1)
+      cattle = @all_cattle[i]
+      cattle ? display_feedback(*cattle) : feedback(guess)
+    end
+  end
 end
 
 # Methods shared by all games where users guess (ie PvP and AI-follow)
 class UserGuess < MastermindGame
-  def initialize(who, holes = 2, colours_i = 3, midgame_data = {})
-    puts "#{who}, guess by typing colours, or just their first letters."
-    super(holes, colours_i, midgame_data)
+  def initialize(who, holes = 2, colours_len = 3, midgame_data = {})
+    puts "#{who}, guess #{holes} colours, or just their first letters."\
+      " Or type 'save' to save and close the game."
+    super(holes, colours_len, midgame_data)
+    reprint_previous_guesses unless midgame_data.empty?
   end
 
   def guess(who)
-    the_guess =
-      Guess.new.check_len(@code.length).map_2_inds(COLOURS[0...@colours_i])
+    the_guess = Guess.new
+    return save_game if the_guess.save_instead
+
+    the_guess.check_len(@code.length).map_2_inds!(COLOURS[0...@colours_len])
     return guess(who) unless the_guess
 
     @guesses << the_guess
+    print "\r\e[1A\r"
     display_guess(the_guess)
     display_feedback(*the_guess.count_cattle(@code))
+  end
+
+  private
+
+  def reprint_previous_guesses
+    list_colours
+    @guesses.each_with_index do |guess, i|
+      puts
+      display_guess(guess, i + 1)
+      display_feedback(*guess.count_cattle(@code))
+    end
   end
 end
 
@@ -221,7 +263,7 @@ class PvP < UserGuess
   def choose_secret_code(holes, who)
     puts "#{who}, enter your secret code."
     @code = Guess.new(STDIN.noecho(&:gets)).check_len(holes)
-                 .map_2_inds(COLOURS[0...@colours_i])
+                 .map_2_inds(COLOURS[0...@colours_len])
     return choose_secret_code(holes, who) unless @code
 
     list_colours
@@ -231,7 +273,7 @@ end
 # AI chooses secret code randomly and user guesses it
 class AIFollow < UserGuess
   def choose_secret_code(holes, _who)
-    @code = Array.new(holes) { rand(0...@colours_i) }
+    @code = Array.new(holes) { rand(0...@colours_len) }
     list_colours
   end
 end
