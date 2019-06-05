@@ -1,23 +1,34 @@
-# Tic-Tac-Toe
-### Plays tic-tac-toe (noughts and crosses) optimally*. It will not lose, and it punishes mistakes.
-### Offers rematches, alternating who moves first, and keeping track of the score.
-### PvP mode alse available
-*Optimally meaning it maximizes the chance of winning via a fork, and secondarily by winning through a mistake.
+Play a series of games against the AI or another player, using the command line to enter moves and guesses. You can save and reload any series.
 
 # Mastermind
-### Enter guesses using the command line and recieve feedback in the form of 'bulls' (correct colours in the right place) and 'cows' (correct colours in the wrong place).
-### Play with however many colours and holes you like.
-
-# Nim
-### Plays nim optimally. Always wins if given a board with nimsum zero and prolongs games in losing positions.
-### Offers rematches, alternating who moves first, and keeping track of the score.
-### PvP mode also available
+- Guess the secret code and get feedback: 'bulls' (correct colours in the right place) and 'cows' (correct colours in the wrong place).
+- Play with up to 8 colours and 8 holes.
+## 1-Player mode
+- Guess a code randomly chosen by the computer.
+- Choose a code for the AI to guess with its optmal* strategy.
+## 2-Player mode
+- Enter your code in secret; the computer will give your opponent feedback
+- Guess your opponent's secret word
+*Minimizes worst case number of guesses (eg always guesses a 4-hole, 6-colour code in 5 guesses)
 
 # Hangman
-Play a series of games against another player or against the computer.
 ## 1-Player mode
 - Guess a word randomly chosen from the computer's dictionary
 - Choose a word for the AI to guess; give feedback on its guesses
 ## 2-Player mode
 - Enter your word in secret; the computer will give your opponent feedback
 - Guess your opponent's secret word
+
+# Tic-Tac-Toe
+## 1-Player mode
+- Plays tic-tac-toe (noughts and crosses) optimally*. It will not lose, and it punishes mistakes.
+## 2-Player mode
+- PvP mode alse available
+*Maximizes the chance of winning via a fork, and secondarily by winning through a mistake.
+
+# Nim
+- Choose the number of lines in each game, or let the computer choose them randomly.
+## 1-Player mode
+- Plays nim optimally. Always wins if given a board with nimsum zero and prolongs games in losing positions.
+## 2-Player mode
+- PvP mode also available
