@@ -1,85 +1,37 @@
-# Monkey
-class Array
-  def part_iter
-    [dup] + if self[0] > self[1]
-              decrement_start
-              if self[-2] == self[-1]
-                push(1).part_iter
-              else
-                push1.part_iter + increment_end.part_iter
-              end
-            else []
-            end
-  end
-
-  def count_cattle(original_code)
-    code = original_code.dup
-    [count_bulls(code), count_cows(code)]
-  end
-
-  private
-
-  def count_bulls(code)
-    count = 0
-    each_with_index do |colour, slot|
-      next unless colour == code[slot]
-
-      count += 1
-      code[slot] = nil
-    end
-    count
-  end
-
-  def count_cows(code)
-    count = 0
-    each_with_index do |colour, slot|
-      next unless code[slot]
-
-      next unless (ind = code.index(colour))
-
-      count += 1
-      code[ind] = -1
-    end
-    count
-  end
-
-  def decrement_start
-    self[0] -= 1
-  end
-
-  def push1
-    self + [1]
-  end
-
-  def increment_end
-    self[0...-1] << self[-1] + 1
-  end
-end
-
-# Monkey-patch for want of better ideas. In the initial move, the colours and
-# their positions are irrelevant; all codes with the same number of colours and
-# repitions of those colours are equivalent (e.g. [0, 0, 1] ~ [2, 3, 3]). So
-# first partition integers into arrays of integers with that sum. Then translate
-# those into the lowest value codes. Then pick the most instructive.
-class Integer
-  def partition
-    array = [self - 1, 1]
-    [[self]] + array.part_iter
-  end
-end
+require_relative '../lib/mastermind/helpers.rb'
+require 'benchmark'
 
 def generate_valid_codes(holes, colours)
   (0...colours).to_a.repeated_permutation(holes).to_a
 end
 
-def pick_most_instructive_code(choices_for_first, all_valid)
-  options_with_group_sizes = choices_for_first.map do |choice|
+def pick_most_reductive_code(choices, all_valid, bmk = false)
+  choices.map! do |choice|
     [choice] << all_valid.map { |x| x.count_cattle(choice) }
                          .each_with_object(Hash.new(0)) do |cttl, hsh|
                            hsh[cttl] += 1
                          end.values
   end
-  get_best_option(options_with_group_sizes)
+  bmk ? choices : get_best_option(choices)
+end
+
+def pick_most_reductive_code_no_dup(choices, all_valid, bmk = false)
+  # Map each choice to an array of its cattle with all_valid.
+  # Use while-loop to access previous choices' cattle.
+  choices.map!.with_index do |choice, i|
+    a_v = all_valid.dup
+    [choice] << a_v.map!.with_index do |code, j|
+      j < i ? choices[j][1][i] : code.count_cattle(choice)
+    end
+  end
+  # Loop again to do the hashing
+  bmk ? group_sizes_of(choices) : get_best_option(group_sizes_of(choices))
+end
+
+def group_sizes_of(choices)
+  choices.map do |(co, ctls)|
+    [co, ctls.each_with_object(Hash.new(0)) { |ctl, hsh| hsh[ctl] += 1 }.values]
+  end
 end
 
 def get_best_option(options_with_group_sizes)
@@ -90,19 +42,19 @@ def get_best_option(options_with_group_sizes)
       n += 1
     end
     spaceship
-  end[0]
+  end
 end
 
-def find_optimal_first_move(holes, colours)
+def find_optimal_first_move(holes, colours, bmk = false)
   all_valid = generate_valid_codes(holes, colours)
   partitions = holes.partition
   partitions.keep_if { |p| p.length <= colours } if colours < holes
-  choices_for_first = partitions.map do |partition|
+  choices = partitions.map do |partition|
     partition.each_with_index.each_with_object([]) do |(x, i), a|
       x.times { a << i }
     end
   end
-  pick_most_instructive_code(choices_for_first, all_valid)
+  bmk ? [choices, all_valid] : pick_most_reductive_code(choices, all_valid)
 end
 
 def find_optimal_first_moves_up_to(max_holes, max_colours)
@@ -122,9 +74,42 @@ def find_optimal_first_moves_up_to(max_holes, max_colours)
   optimal_first_moves
 end
 
-require 'benchmark'
 # optimal_first_moves = find_optimal_first_moves_up_to(8, 8).each_value do |v|
 #   arr = []
 #   v[:optimal_first_move].each { |i| arr[i] = (arr[i] || 0) + 1 }
 #   v[:seq_generator] = arr
 # end
+
+def compare_ranchers(holes, colours)
+  choices, all_valid = find_optimal_first_move(holes, colours, true)
+  first_guess, groups = pick_most_reductive_code(choices, all_valid)
+  f_g_cattle = groups.max[0]
+  all_valid.keep_if do |code|
+    match = code.compare_cattle(first_guess, f_g_cattle)
+    choices << code if match
+    !match
+  end
+  all_valid.unshift(*choices)
+  pick1 = pick2 = nil
+  Benchmark.bmbm do |x|
+    x.report('pick_most_reductive_code') do
+      pick1 = pick_most_reductive_code(choices.dup, all_valid, true)
+    end
+    x.report('pick_most_reducti_no_dup') do
+      pick2 = pick_most_reductive_code_no_dup(choices.dup, all_valid, true)
+    end
+  end
+  puts pick1 == pick2 ? 'Same result' : 'Different results!!!!!!!!!!!!'
+end
+
+def compare_ranchers_for_up_to(max_holes, max_colours)
+  (2..max_holes).each do |holes|
+    (1..max_colours).each do |colours|
+      puts "#{holes} holes, #{colours} colours"
+      compare_ranchers(holes, colours)
+      puts
+    end
+  end
+end
+
+# compare_ranchers_for_up_to(5, 6)

@@ -45,6 +45,17 @@ class Array
 
   private
 
+  def count_bulls(code)
+    count = 0
+    each_with_index do |colour, slot|
+      next unless colour == code[slot]
+
+      count += 1
+      code[slot] = nil
+    end
+    count
+  end
+
   def compare_bulls(code, target)
     count = 0
     each_with_index do |colour, slot|
@@ -58,13 +69,15 @@ class Array
     count == target
   end
 
-  def count_bulls(code)
+  def count_cows(code)
     count = 0
     each_with_index do |colour, slot|
-      next unless colour == code[slot]
+      next unless code[slot]
+
+      next unless (ind = code.index(colour))
 
       count += 1
-      code[slot] = nil
+      code[ind] = -1
     end
     count
   end
@@ -82,19 +95,6 @@ class Array
       code[ind] = -1
     end
     count == target
-  end
-
-  def count_cows(code)
-    count = 0
-    each_with_index do |colour, slot|
-      next unless code[slot]
-
-      next unless (ind = code.index(colour))
-
-      count += 1
-      code[ind] = -1
-    end
-    count
   end
 
   def decrement_start
