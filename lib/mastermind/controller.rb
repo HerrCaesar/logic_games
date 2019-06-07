@@ -33,5 +33,7 @@ class Mastermind < Controller
   end
 end
 
-controller = Mastermind.new
-end_series ||= controller.do_a_round until end_series
+if /main\.rb$/.match? $PROGRAM_NAME
+  controller = Mastermind.new
+  end_series ||= controller.do_a_round until end_series
+end

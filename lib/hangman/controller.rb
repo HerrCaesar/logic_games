@@ -9,5 +9,7 @@ class Hangman < Controller
   end
 end
 
-controller = Hangman.new
-end_series ||= controller.do_a_round until end_series
+if /main\.rb$/.match? $PROGRAM_NAME
+  controller = Hangman.new
+  end_series ||= controller.do_a_round until end_series
+end

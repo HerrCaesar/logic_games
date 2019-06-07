@@ -26,5 +26,7 @@ class Nim < TurnBased
   end
 end
 
-controller = Nim.new
-end_series ||= controller.do_a_round until end_series
+if /main\.rb$/.match? $PROGRAM_NAME
+  controller = Nim.new
+  end_series ||= controller.do_a_round until end_series
+end

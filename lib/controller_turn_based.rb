@@ -7,7 +7,7 @@ class TurnBased < Controller
   def play_round
     mover = whose_go
     game_over ||= @series.take_turn(mover ^= 1) until game_over
-    game_over == 'saved' || !continue_to_next_game?
+    game_over == 'saved' || stop_playing?
   end
 
   def midgame?(midgame_data)
