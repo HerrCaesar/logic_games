@@ -9,7 +9,7 @@ class PvC < TicTacToeGame
 
     return if !none_two_thirds_done(id) || !none_one_third_done(id)
 
-    draw(@board.first_available_cell, 1)
+    draw(@board.first_available_cell, id)
   end
 
   def only_just_started(id)
@@ -87,18 +87,18 @@ end
 
 # Game where AI gets to go first
 class AILead < PvC
-  def move(_which, who)
+  def move(who, _which = nil)
     return ai_move(1) if @moves_made.even?
 
-    user_move(4, who)
+    user_move(who, 4)
   end
 end
 
 # Game where user gets to go first and AI second
 class AIFollow < PvC
-  def move(_which, who)
+  def move(who, _which = nil)
     return ai_move(4) if @moves_made.odd?
 
-    user_move(1, who)
+    user_move(who, 1)
   end
 end

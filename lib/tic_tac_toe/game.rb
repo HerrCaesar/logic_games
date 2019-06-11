@@ -13,7 +13,7 @@ class TicTacToeGame
     @board.p
   end
 
-  def game_over?(which, who)
+  def game_over?(who, which)
     if ([3, 12] & @line_sums).any?
       puts "#{who} wins!"
       return which
@@ -30,19 +30,19 @@ class TicTacToeGame
 
   private
 
-  def user_move(player_id, who)
-    choice = ask_for_move(player_id, who)
+  def user_move(who, player_id)
+    choice = ask_for_move(who, player_id)
     return choice if choice.is_a? Hash
 
     cell = parse_for_cell(choice)
-    return user_move(player_id, who) unless
+    return user_move(who, player_id) unless
       cell && @board.yell_unless_cell_free?(cell)
 
     draw(cell, player_id)
     @moves_made += 1
   end
 
-  def ask_for_move(player_id, who)
+  def ask_for_move(who, player_id)
     print "#{who} (#{player_id == 1 ? 'X' : 'O'}'s'), describe (eg top left),"\
           ' or pick a number, 1-9. '
     puts 'Or save and close the game.'

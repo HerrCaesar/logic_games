@@ -11,7 +11,7 @@ class Controller
 
   def setup(s_class, options = nil, offer_load = true)
     saved = saved_games_available(s_class.name)
-    if saved.any? && offer_load && load_series?
+    if saved && offer_load && load_series?
       old_game = pick_game(saved)
       return setup(s_class, options, false) unless old_game
 

@@ -29,7 +29,7 @@ class TicTacToeSeries < TurnBasedSeries
 
   def game_over?(which)
     @game.p
-    over = @game.game_over?(which, @names[which])
+    over = @game.game_over?(@names[which], which)
     @record = @record << over if over
     over
   end

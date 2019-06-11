@@ -13,12 +13,12 @@ class NimGame < Array
     p
   end
 
-  def move(player_id, who)
+  def move(who, player_id)
     # Wait for appropriate user response then call take
-    choice = ask_for_move(player_id, who)
+    choice = ask_for_move(who, player_id)
     return choice if choice.is_a? Hash
 
-    return move(player_id, who) if choice.length != 2 ||
+    return move(who, player_id) if choice.length != 2 ||
                                    choice.any? { |x| x < 1 } ||
                                    choice[0] > self[choice[1] - 1]
 
@@ -51,7 +51,7 @@ class NimGame < Array
     true
   end
 
-  def ask_for_move(player_id, who)
+  def ask_for_move(who, player_id)
     print "\n#{who}, enter how many to take, then which heap (eg '1 3'). "
     puts 'Or save and close the game.'
     return save_game(player_id) if /(save|close)/.match?(choice = gets)
@@ -73,7 +73,7 @@ end
 
 # Game against computer
 class PvC < NimGame
-  def move(player_id, who)
+  def move(who, player_id)
     who == 'Computer' ? ai_move : super(player_id, who)
   end
 
