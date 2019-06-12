@@ -16,5 +16,23 @@
             "draws": 79,
             "ai_losses": 0
         }
+    },
+    "12/06/2019 11:03": {
+        "commit": {
+            "id": "bb63698e7384fc41b048d6803f2dd7bb1f29dfa8",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Tue Jun 11 23:55:23 2019 +0100",
+            "comment": "Create utility to test AI optimality in tic-tac-toe"
+        },
+        "ai_first_results": {
+            "ai_wins": 87,
+            "draws": 4,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 378,
+            "draws": 79,
+            "ai_losses": 0
+        }
     }
 }

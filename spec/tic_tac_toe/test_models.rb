@@ -1,5 +1,40 @@
 require 'minitest/autorun'
 
+# Game
+class CompletenessTest < Minitest::Test
+  require_relative 'completeness_test.rb'
+  require 'date'
+  def test_no_losses_and_min_draws
+    results = TestTicTacToe.new.run_tests
+    this_result = results.max_by { |k, _v| get_time(k) }[1]
+    assert_equal(losses(this_result), 0, 'The AI loses!')
+    %w[ai_first_results ai_second_results].each do |order|
+      draws, date = fewest_draws(results, order)
+      assert_equal(draws(this_result, order), draws, "The version on #{date} "\
+                   "had fewer draws when the AI moved #{order}.")
+    end
+  end
+
+  private
+
+  def losses(hsh)
+    hsh['ai_first_results']['ai_losses'] + hsh['ai_second_results']['ai_losses']
+  end
+
+  def fewest_draws(results, order)
+    date, fewest = results.min_by { |_k, h| draws(h, order) }
+    [draws(fewest, order), date]
+  end
+
+  def draws(result, order)
+    result[order]['draws']
+  end
+
+  def get_time(string)
+    DateTime.strptime(string, '%d/%m/%Y %H:%M')
+  end
+end
+
 # Board
 class BoardTest < Minitest::Test
   require_relative '../../lib/tic_tac_toe/board.rb'

@@ -14,10 +14,11 @@ require_relative 'helpers.rb'
 
 # Create one game class with tester leading, one with AI leading. Save results
 class TestTicTacToe
-  def initialize
+  def run_tests
     first = play(TestAILeadSeries.new)
     second = play(TestAIFollowSeries.new)
-    save_data(hashify(first, second))
+    data_hash = hashify(first, second)
+    save_data(data_hash)
   end
 
   private
@@ -29,13 +30,13 @@ class TestTicTacToe
   end
 
   def hashify(ai_first_results, ai_second_results)
-    commit_keys = %i[id author date comment]
+    commit_keys = %w[id author date comment]
     commit_arr =
       `git log -n1`.split("\n").reject(&:empty?).map { |x| x.sub(/\S*\s+/, '') }
     {
-      commit: Hash[(0..3).to_a.map { |i| [commit_keys[i], commit_arr[i]] }],
-      ai_first_results: ai_first_results,
-      ai_second_results: ai_second_results
+      'commit' => Hash[(0..3).to_a.map { |i| [commit_keys[i], commit_arr[i]] }],
+      'ai_first_results' => ai_first_results,
+      'ai_second_results' => ai_second_results
     }
   end
 
@@ -44,13 +45,14 @@ class TestTicTacToe
     saved = File.exist?(file) ? JSON.parse(File.read(file)) : {}
     saved[Time.now.strftime('%d/%m/%Y %H:%M')] = data
     File.write(file, saved.to_json)
+    saved
   end
 end
 
 # Create a stack of games and make every possible move on each go.
 class TestTicTacToeSeries < TicTacToeSeries
   def initialize(game)
-    @record = { ai_wins: 0, draws: 0, ai_losses: 0 }
+    @record = { 'ai_wins' => 0, 'draws' => 0, 'ai_losses' => 0 }
     @game_stack = []
     jump_the_queue(game)
   end
@@ -90,11 +92,11 @@ class TestTicTacToeSeries < TicTacToeSeries
     when false
       false
     when @id
-      :ai_losses
+      'ai_losses'
     when 2
-      :draws
+      'draws'
     else
-      :ai_wins
+      'ai_wins'
     end
   end
 
@@ -138,5 +140,3 @@ class TestAIFollowSeries < TestTicTacToeSeries
     super(game)
   end
 end
-
-TestTicTacToe.new
