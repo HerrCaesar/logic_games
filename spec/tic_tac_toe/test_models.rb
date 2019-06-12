@@ -8,10 +8,11 @@ class CompletenessTest < Minitest::Test
     results = TestTicTacToe.new.run_tests
     this_result = results.max_by { |k, _v| get_time(k) }[1]
     assert_equal(losses(this_result), 0, 'The AI loses!')
-    %w[ai_first_results ai_second_results].each do |order|
-      draws, date = fewest_draws(results, order)
-      assert_equal(draws(this_result, order), draws, "The version on #{date} "\
-                   "had fewer draws when the AI moved #{order}.")
+    %w[first second].each do |order|
+      category = 'ai_' + order + '_results'
+      draws, date = fewest_draws(results, category)
+      assert_operator(draws, :>=, draws(this_result, category), "The version "\
+                      "on #{date} had fewer draws when the AI moved #{order}.")
     end
   end
 
@@ -21,13 +22,13 @@ class CompletenessTest < Minitest::Test
     hsh['ai_first_results']['ai_losses'] + hsh['ai_second_results']['ai_losses']
   end
 
-  def fewest_draws(results, order)
-    date, fewest = results.min_by { |_k, h| draws(h, order) }
-    [draws(fewest, order), date]
+  def fewest_draws(results, category)
+    date, fewest = results.min_by { |_k, h| draws(h, category) }
+    [draws(fewest, category), date]
   end
 
-  def draws(result, order)
-    result[order]['draws']
+  def draws(result, category)
+    result[category]['draws']
   end
 
   def get_time(string)
