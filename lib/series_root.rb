@@ -5,6 +5,8 @@ class Series
     @names = names
     options.each { |key, val| instance_variable_set("@#{key}", val) }
     @record = record
+    9.times { puts }
+    system 'clear' or system 'cls'
   end
 
   def new_game(id_of_leader, midgame_data = {})

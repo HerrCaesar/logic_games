@@ -5,7 +5,7 @@ require_relative 'series_root.rb'
 
 def pick_g
   puts 'What do you want to play:'
-  puts 'Tic Tac Toe (1), Mastermind (2), Nim (3), or Hangman(4)?'
+  print 'Tic Tac Toe (1), Mastermind (2), Nim (3), or Hangman (4)?  '
   ins = gets.chomp.to_i
   ins.zero? ? pick_g : ins - 1
 end

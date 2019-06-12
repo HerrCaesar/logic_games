@@ -133,7 +133,7 @@ class AILead < HangmanGame
   def choose_secret_word(who)
     1.times do
       print "#{who}, pick a secret word and remember it. "
-      puts 'How many letters are in it?'
+      print 'How many letters are in it?  '
       ins = gets.strip
       redo unless ins =~ /^\d+$/
       @shh_word = Array.new(ins.to_i)
@@ -203,7 +203,7 @@ class AILead < HangmanGame
       sleep 0.6
       print '.'
     end
-    puts "\n#{@last_guess}"
+    puts "  #{@last_guess}"
   end
 
   def feedback(verbose = false)
@@ -222,8 +222,8 @@ class AILead < HangmanGame
     if verbose
       puts "Enter the position of each '#{@last_guess}' in your secret word."
       puts "For example, '2 4' if the word was 'seven' and the guess was 'e'."
-      puts 'If the guess is wrong, just press enter.'
-    else puts "Where does '#{@last_guess}' occur? ('h' for help; 's' to save.)"
+      print 'If the guess is wrong, just press enter.  '
+    else print "Where does '#{@last_guess}' occur? ('h' for help; 's' to save)  "
     end
     ins = gets
     return get_fb(true) if ins =~ /[hH]/

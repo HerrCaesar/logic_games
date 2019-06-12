@@ -41,7 +41,7 @@ class Controller
   end
 
   def load_series?
-    puts 'Start new game or load from file?'
+    print 'Start new game or load from file?  '
     gets =~ /[LlFf]/
   end
 
@@ -71,34 +71,41 @@ class Controller
     vs_ai = vs_ai?
     names = organize_teams(vs_ai)
     @id_of_leader = 0
-    names = set_second_name(vs_ai, names)
+    names = choose_second_name(vs_ai, names)
     @series = s_class.new(vs_ai, names, options)
   end
 
   def vs_ai?
-    puts '1-player (1) or 2-player (2)?'
-    /1/.match? gets
+    print '1-player (1) or 2-player (2)?  '
+    !/2/.match?(gets)
   end
 
   def organize_teams(vs_ai)
-    puts "What's your name?"
-    name = (gets.strip || 'Player 1').capitalize
-    if name == 'Computer' && vs_ai
-      puts "Hey that's my name! get your own."
-      return organize_teams(vs_ai)
-    end
-    [name]
+    print "What's your name?  "
+    [] << case (name = gets.strip.capitalize)
+          when 'Computer'
+            if vs_ai
+              puts "Hey that's my name! get your own."
+              return organize_teams(vs_ai)
+            end
+            name
+          when ''
+            'Player 1'
+          else name
+          end
   end
 
-  def set_second_name(vs_ai, names)
-    if vs_ai
-      names << 'Computer'
-      puts 'Do you want to go first to begin with?'
-      /[yY]/.match?(gets) ? names : names.reverse!
-    else
-      puts "What's player 2's name?"
-      names << (gets.strip || 'Player 2').capitalize
-    end
+  def choose_second_name(vs_ai, names)
+    return add_computers_name(names) if vs_ai
+
+    print "What's player 2's name?  "
+    names << ((name = gets.strip.capitalize).empty? ? 'Player 2' : name)
+  end
+
+  def add_computers_name(names)
+    names << 'Computer'
+    print 'Do you want to go first to begin with?  '
+    /[yY]/.match?(gets) ? names : names.reverse!
   end
 
   def midgame?(midgame_data)

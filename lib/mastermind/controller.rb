@@ -15,7 +15,7 @@ class Mastermind < Controller
   end
 
   def choose_holes_and_colours
-    puts 'Enter how many holes and colours you want, or use the default (4, 6).'
+    print 'How many holes & colours do you want? (Or use the default: 4 & 6)  '
     return default_holes_and_colours if (in_s = gets.chomp.split).length != 2
 
     return default_holes_and_colours if in_s.map!(&:to_i).any? { |int| int < 1 }

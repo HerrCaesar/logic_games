@@ -20,7 +20,7 @@ class Nim < TurnBased
   end
 
   def user_choose_heaps
-    puts "How many heaps? (Or type 'r' for random.)"
+    print "How many heaps? (Or type 'r' for random)  "
     heaps = gets.chomp.to_i
     { heaps: heaps < 1 ? nil : [heaps, 50].min }
   end

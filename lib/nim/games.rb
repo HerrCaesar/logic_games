@@ -74,7 +74,7 @@ end
 # Game against computer
 class PvC < NimGame
   def move(who, player_id)
-    who == 'Computer' ? ai_move : super(player_id, who)
+    who == 'Computer' ? ai_move : super(who, player_id)
   end
 
   def ai_move
