@@ -47,7 +47,6 @@ class BoardTest < Minitest::Test
     out = capture_io do
       @board.p
     end[0]
-    assert_match(/(\S).+\1.+\n.+\1.+\1.+\n.+\1.+\1/, out, "Doesn't p 3x3 grid")
     assert_match(/^[^Xx]*[Xx][^Xx]*$/, out, "Didn't print exactly 1 cross")
     assert_match(/^[^Oo0]*[Oo0][^Oo0]*$/, out, "Didn't print exactly 1 naught")
   end

@@ -6,6 +6,8 @@ require 'io/console'
 # Sets up the game and responds to guesses
 class MastermindGame
   COLOURS = %i[red blue green yellow cyan white light_magenta black].freeze
+  B = "\u2688".encode('utf-8').colorize(:red)
+  C = "\u2689".encode('utf-8').colorize(:white)
   def initialize(holes = 2, colours_len = 3, midgame_data = {})
     @colours_len = colours_len
     @max_guesses = ((holes * colours_len)**0.6).round
@@ -35,7 +37,13 @@ class MastermindGame
   end
 
   def display_feedback(bulls, cows, owrt_space = 0)
-    puts "  #{bulls} bull#{s?(bulls)}, #{cows} cow#{s?(cows)}".ljust(owrt_space)
+    b = B + ' '
+    c = C + ' '
+    puts "  #{b * bulls + c * cows}" + ' ' * owrt_space
+    test_game_over(bulls)
+  end
+
+  def test_game_over(bulls)
     # Game terminates when #game_over? runs if @game_over is truthy.
     # 1 -> guessed in time; 0 -> not
     @game_over = if bulls == @code.length
@@ -45,10 +53,6 @@ class MastermindGame
 
                    out_of_time? ? continue? : false
                  end
-  end
-
-  def s?(str)
-    str == 1 ? '' : 's'
   end
 
   def out_of_time?
@@ -149,7 +153,7 @@ class AILead < MastermindGame
   def get_feedback(verbose = false)
     ask_for_feedback(verbose)
     in_s = gets_without_return
-    print "\b" * (padding = (verbose ? 267 : 39) + in_s.length)
+    print "\b" * (padding = (verbose ? 250 : 32) + in_s.length)
     case in_s
     when /[hH]/
       get_feedback(true)
@@ -160,11 +164,11 @@ class AILead < MastermindGame
   end
 
   def ask_for_feedback(verbose = false)
-    print 'Enter the number of bulls, then cows'
+    print "Enter the number of #{B}, then #{C}"
     if verbose
-      print '. A bull is a pair of dots, one in the guess, one in your code, '\
-            'with the same colour and position. A cow is a pair that are the '\
-            "same colour, but that haven't been counted as a bull or a cow"
+      print ". A #{B} is a pair of dots, one in the guess, one in your code, "\
+            "with the same colour and position. A #{C} is a pair that are the "\
+            "same colour, but that haven't been counted as a #{B} or a #{C}"
     end
     print ':  '
   end
