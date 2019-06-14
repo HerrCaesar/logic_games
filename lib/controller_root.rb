@@ -68,11 +68,11 @@ class Controller
   end
 
   def create_series(s_class, options = {})
-    vs_ai = vs_ai?
-    names = organize_teams(vs_ai)
+    @vs_ai = vs_ai?
+    names = organize_teams
     @id_of_leader = 0
-    names = choose_second_name(vs_ai, names)
-    @series = s_class.new(vs_ai, names, options)
+    names = choose_second_name(names)
+    @series = s_class.new(@vs_ai, names, options)
   end
 
   def vs_ai?
@@ -80,13 +80,13 @@ class Controller
     !/2/.match?(gets)
   end
 
-  def organize_teams(vs_ai)
+  def organize_teams
     print "What's your name?  "
     [] << case (name = gets.strip.capitalize)
           when 'Computer'
-            if vs_ai
+            if @vs_ai
               puts "Hey that's my name! get your own."
-              return organize_teams(vs_ai)
+              return organize_teams
             end
             name
           when ''
@@ -95,8 +95,8 @@ class Controller
           end
   end
 
-  def choose_second_name(vs_ai, names)
-    return add_computers_name(names) if vs_ai
+  def choose_second_name(names)
+    return add_computers_name(names) if @vs_ai
 
     print "What's player 2's name?  "
     names << ((name = gets.strip.capitalize).empty? ? 'Player 2' : name)
@@ -105,7 +105,7 @@ class Controller
   def add_computers_name(names)
     names << 'Computer'
     print 'Do you want to go first to begin with?  '
-    /[yY]/.match?(gets) ? names : names.reverse!
+    /[nN]/.match?(gets) ? names.reverse! : names
   end
 
   def midgame?(midgame_data)

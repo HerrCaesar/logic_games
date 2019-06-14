@@ -1,5 +1,9 @@
 # Represents tic-tac-toe board. 0 = empty; 1 = playerA; 4 = playerB
 class Board < Array
+  def initialize(length = nil, &block)
+    length ? super : super(9) { 0 }
+  end
+
   def p
     blank = all?(&:zero?) ? method(:cell_num) : method(:spaces)
     p_top
@@ -20,16 +24,12 @@ class Board < Array
     freeness
   end
 
-  def first_available_cell
-    each_with_index { |x, i| return i if x.zero? }
-  end
-
-  def spaces(_i)
+  def spaces(_ind)
     '   '
   end
 
-  def cell_num(i)
-    " #{i + 1} "
+  def cell_num(ind)
+    " #{ind + 1} "
   end
 
   def p_top

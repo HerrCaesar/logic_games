@@ -13,19 +13,22 @@ class TicTacToeSeries < TurnBasedSeries
   end
 
   def new_game(id_of_leader, midgame_data = {})
-    @game = if @vs_ai
-              require_relative 'p_v_c_game.rb'
-              if @names[id_of_leader] == 'Computer'
-                AILead.new(midgame_data)
-              else AIFollow.new(midgame_data)
-              end
-            else
-              require_relative 'p_v_p_game.rb'
-              PvP.new(midgame_data)
-            end
+    return new_ai_game(id_of_leader, midgame_data) if @vs_ai
+
+    require_relative 'p_v_p_game.rb'
+    @game = PvP.new(midgame_data)
   end
 
   private
+
+  def new_ai_game(id_of_leader, midgame_data)
+    require_relative 'p_v_c_game.rb'
+    @game = if @names[id_of_leader] == 'Computer'
+              AILead.new(midgame_data)
+            else AIFollow.new(midgame_data)
+            end
+    @game.prepare_root_state(@names[id_of_leader])
+  end
 
   def game_over?(which)
     @game.p

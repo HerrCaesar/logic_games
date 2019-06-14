@@ -5,7 +5,7 @@ class Series
     @names = names
     options.each { |key, val| instance_variable_set("@#{key}", val) }
     @record = record
-    9.times { puts }
+    12.times { puts }
     system 'clear' or system 'cls'
   end
 
@@ -21,7 +21,7 @@ class Series
 
   def p(p1_ws, p2_ws)
     puts "#{@names[0]} - #{p1_ws}; #{@names[1]} - #{p2_ws}."
-    puts 'Rematch, save or exit?'
+    print 'Rematch, save or exit?   '
   end
 
   def save_game(midgame_data = {})

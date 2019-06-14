@@ -2,7 +2,7 @@
 class TicTacToeGame
   def initialize(midgame_data = {})
     if midgame_data.empty?
-      @board = Board.new(9) { 0 }
+      @board = Board.new
       @line_sums = Array.new(8) { 0 }
       @moves_made = 0
     else
@@ -40,12 +40,12 @@ class TicTacToeGame
 
     draw(cell, player_id)
     @moves_made += 1
+    cell
   end
 
   def ask_for_move(who, player_id)
     print "#{who} (#{player_id == 1 ? 'X' : 'O'}'s'), describe (eg top left),"\
-          ' or pick a number, 1-9. '
-    puts 'Or save and close the game.'
+          ' or pick a number, 1-9. (Or save and close the game)  '
     return save_game(player_id) if /(save|close)/.match?(choice = gets.downcase)
 
     choice.strip.split.map { |x| x[0] }

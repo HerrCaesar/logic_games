@@ -5,7 +5,7 @@ class TurnBased < Controller
   private
 
   def play_round
-    mover = whose_go
+    mover = whose_go ^ 1
     game_over ||= @series.take_turn(mover ^= 1) until game_over
     game_over == 'saved' || stop_playing?
   end

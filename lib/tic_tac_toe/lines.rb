@@ -1,11 +1,3 @@
-# A group of rows, collumns and/or diagonals, each containing three cells
-class Lines < Array
-  # Returns array of the indices of empty cells shared by any pair of lines
-  def find_intersects
-    combination(2).with_object([]) { |(a, b), shared| shared.push(*(a & b)) }
-  end
-end
-
 # An array of the empty cells that share a row, column or diagonal
 class Line < Array
   # Pass the index of a line (0..8); returns array of cells' indices in the line

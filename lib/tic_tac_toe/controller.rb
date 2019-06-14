@@ -12,7 +12,8 @@ class TicTacToe < TurnBased
   private
 
   def whose_go
-    (@midgame ? @midgame ^ @id_of_leader : @id_of_leader) ^ 1
+    # TTT vs AI has initialization turn, where mover isn't toggled
+    @midgame || (@vs_ai ? @id_of_leader ^ 1 : @id_of_leader)
   end
 end
 
