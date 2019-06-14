@@ -1,28 +1,32 @@
 # Each score is ratio of [ai-wins, draws, user-wins] in a game-tree
 class Scores < Array
-  def normalise_scores(rev = false)
+  def normalise_scores
     map do |score|
       sum = score.sum.to_f
       norm_score = score.map { |x| x / sum }
-      rev ? norm_score.reverse! : norm_score
+      norm_score
     end
   end
 
   # Sorts childrens' value by least chance of opponent win, then draw, else left
   def choose_wisely
     each_with_index.min do |(a, _i), (b, _j)|
-      spaceship = n = 0
+      spaceship = 0
+      n = 2
       while spaceship.zero?
-        spaceship = if n < 2
+        spaceship = if n > 0
                       a[n] <=> b[n]
                     else -1
                     end
-        n += 1
+        n -= 1
       end
       spaceship
     end[1]
   end
 
+  # Si is vector of score i; l = lowest common multiple of all ΣS.
+  # A = Σ(Si * l / ΣSi); g = greatest common divisor of A
+  # = G A / g
   def average_scores
     sums = map(&:sum)
     l_c_m = sums.inject(1, :lcm)

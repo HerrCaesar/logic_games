@@ -27,7 +27,7 @@ class GameState
   def evaluate_from_children(free_cells)
     create_children(free_cells)
     @children.each { |h| h[:game_state].evaluate(h[:its_frees]) }
-    @ai_go ? keep_n_score_user_go_kids : keep_n_score_best_ai_go_kid
+    @ai_go ? average_kids_scores : keep_n_score_best_ai_go_kid
   end
 
   # Create a child game-state for every free cell
@@ -47,19 +47,13 @@ class GameState
   # kills all children except least valuable to user and returns its value
   def keep_n_score_best_ai_go_kid
     scores = kids_scores
-    survivor_index = scores.normalise_scores(true).choose_wisely
+    survivor_index = scores.normalise_scores.choose_wisely
     @children = [@children[survivor_index]]
     scores[survivor_index]
   end
 
-  # Evaluates opponent's position as equal to the child least valuable to AI
-  def keep_n_score_user_go_kids
-    scores = kids_scores
-    scores[scores.normalise_scores.choose_wisely]
-  end
-
-  # Estimates the value (score) of an opponent's position on easy mode
-  def average_childrens_scores
+  # Evaluate user's position as equal to average of childrens' values
+  def average_kids_scores
     kids_scores.average_scores
   end
 

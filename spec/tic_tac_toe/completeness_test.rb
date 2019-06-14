@@ -123,7 +123,7 @@ class TestAILeadSeries < TestTicTacToeSeries
     game = nil
     OStreamCatcher.catch do
       game = AILead.new
-      game.move('ai')
+      game.prepare_root_state('ai')
     end
     super(game)
   end
@@ -138,5 +138,23 @@ class TestAIFollowSeries < TestTicTacToeSeries
       game = AIFollow.new
     end
     super(game)
+    make_root_for_each_initial_user_move
+  end
+
+  private
+
+  # Set a root state for each possible first user mover by shifting from bottom
+  # of stack and placing children on the top
+  def make_root_for_each_initial_user_move
+    OStreamCatcher.catch do
+      9.times do
+        game, cell = @game_stack.shift
+        $stdin = write_string_io(cell)
+        game.prepare_root_state('tester')
+        game.move('ai')
+        $stdin = STDIN
+        jump_the_queue(game)
+      end
+    end
   end
 end

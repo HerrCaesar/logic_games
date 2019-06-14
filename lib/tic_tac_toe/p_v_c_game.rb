@@ -52,7 +52,7 @@ class AILead < PvC
   def pick_best_initial(moves)
     scores =
       Scores.new(moves.each_with_object([]) { |(_c, h), a| a << h[:score] })
-    cell = scores.normalise_scores(true).choose_wisely**2
+    cell = scores.normalise_scores.choose_wisely**2
     draw(cell, 1)
     @moves_made += 1
     @root_state = moves[cell][:game_state]

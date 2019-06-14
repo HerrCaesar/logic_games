@@ -10,9 +10,10 @@ class CompletenessTest < Minitest::Test
     assert_equal(losses(this_result), 0, 'The AI loses!')
     %w[first second].each do |order|
       category = 'ai_' + order + '_results'
-      draws, date = fewest_draws(results, category)
-      assert_operator(draws, :>=, draws(this_result, category), "The version "\
-                      "on #{date} had fewer draws when the AI moved #{order}.")
+      lowest_d_r, date = lowest_draw_rate(results, category)
+      this_d_r = draw_rate(this_result, category)
+      assert_operator(lowest_d_r, :>=, this_d_r, "Version on #{date} had lower"\
+        " draw rate (#{lowest_d_r}% < #{this_d_r}%) when AI moved #{order}.")
     end
   end
 
@@ -22,13 +23,14 @@ class CompletenessTest < Minitest::Test
     hsh['ai_first_results']['ai_losses'] + hsh['ai_second_results']['ai_losses']
   end
 
-  def fewest_draws(results, category)
-    date, fewest = results.min_by { |_k, h| draws(h, category) }
-    [draws(fewest, category), date]
+  def lowest_draw_rate(results, category)
+    date, fewest = results.min_by { |_k, h| draw_rate(h, category) }
+    [draw_rate(fewest, category), date]
   end
 
-  def draws(result, category)
-    result[category]['draws']
+  def draw_rate(result, category)
+    d = result[category]['draws']
+    (100 * d.to_f / (result[category]['ai_wins'] + d)).round(2)
   end
 
   def get_time(string)
@@ -69,32 +71,6 @@ class BoardTest < Minitest::Test
     assert_silent do
       @board.yell_unless_cell_free?(1)
     end
-  end
-
-  def test_says_cell1_is_first_free
-    assert_equal(@board.first_available_cell, 1)
-  end
-end
-
-class LinesTest < Minitest::Test
-  require_relative '../../lib/tic_tac_toe/lines.rb'
-  def setup
-    @lines = Lines.new([[0, 1, 2]])
-  end
-
-  def test_finds_instersects_of_two_lines
-    @lines << [0, 3, 6]
-    assert_equal([0], @lines.find_intersects)
-  end
-
-  def test_finds_intersects_among_three_lines
-    @lines.push([0, 3, 6], [2, 4, 6])
-    assert_equal([0, 2, 6], @lines.find_intersects)
-  end
-
-  def test_returns_empty_if_no_intersects
-    @lines << [3, 4, 5]
-    assert_empty(@lines.find_intersects)
   end
 end
 
