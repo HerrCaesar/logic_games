@@ -14,6 +14,14 @@ class Board < Array
     p_bottom
   end
 
+  def game_won?(cell)
+    row0 = cell / 3 * 3
+    [1, 2].all? { |i| self[row0] == self[row0 + i] } ||
+      [3, 6].all? { |i| self[(cell + i) % 9] == self[cell] } ||
+      [0, 4, 8].include?(cell) && [4, 8].all? { |i| self[i] == self[0] } ||
+      [2, 4, 6].include?(cell) && [4, 6].all? { |i| self[i] == self[2] }
+  end
+
   def free?(cell)
     self[cell].zero?
   end
@@ -23,6 +31,8 @@ class Board < Array
     puts 'This square is taken!' unless freeness
     freeness
   end
+
+  private
 
   def spaces(_ind)
     '   '

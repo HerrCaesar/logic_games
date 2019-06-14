@@ -73,14 +73,3 @@ class BoardTest < Minitest::Test
     end
   end
 end
-
-class LineTest < Minitest::Test
-  require_relative '../../lib/tic_tac_toe/lines.rb'
-  def test_returns_cells_in_row
-    assert_equal([0, 1, 2], Line.new(0))
-  end
-
-  def test_returns_cells_in_collumn
-    assert_equal([0, 3, 6], Line.new(3))
-  end
-end

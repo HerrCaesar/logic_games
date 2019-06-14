@@ -9,7 +9,6 @@ require_relative '../../lib/tic_tac_toe/series.rb'
 require_relative '../../lib/tic_tac_toe/game.rb'
 require_relative '../../lib/tic_tac_toe/p_v_c_game.rb'
 require_relative '../../lib/tic_tac_toe/board.rb'
-require_relative '../../lib/tic_tac_toe/lines.rb'
 require_relative 'helpers.rb'
 
 # Create one game class with tester leading, one with AI leading. Save results
@@ -74,8 +73,8 @@ class TestTicTacToeSeries < TicTacToeSeries
 
   def turn(game, who, id)
     result = OStreamCatcher.catch do
-      game.move(who)
-      game.game_over?(who, id)
+      cell = game.move(who)
+      game.game_over?(who, id, cell)
     end[0]
     game_over?(result)
   end

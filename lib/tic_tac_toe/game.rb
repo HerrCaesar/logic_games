@@ -3,21 +3,19 @@ class TicTacToeGame
   def initialize(midgame_data = {})
     if midgame_data.empty?
       @board = Board.new
-      @line_sums = Array.new(8) { 0 }
       @moves_made = 0
     else
       @board = Board.new(midgame_data['board'])
-      @line_sums = midgame_data['line_sums']
       @moves_made = midgame_data['moves_made']
     end
     @board.p
   end
 
-  def game_over?(who, which)
-    if ([3, 12] & @line_sums).any?
+  def game_over?(who, which, changed_cell)
+    if @board.game_won?(changed_cell)
       puts "#{who} wins!"
       return which
-    elsif @moves_made == 9
+    elsif @board.count(&:zero?).zero?
       puts 'Draw'
       return 2
     end
@@ -38,7 +36,7 @@ class TicTacToeGame
     return user_move(who, player_id) unless
       cell && @board.yell_unless_cell_free?(cell)
 
-    draw(cell, player_id)
+    @board[cell] = player_id
     @moves_made += 1
     cell
   end
@@ -59,15 +57,6 @@ class TicTacToeGame
       parse_for_descrip(choice)
     else puts 'Enter two words, or the cell number from 1 to 9.'
     end
-  end
-
-  def draw(cell, player_id)
-    @board[cell] = player_id
-    arr = [cell / 3, cell % 3 + 3]
-    arr << 6 if (cell % 4).zero?
-    arr << 7 if [2, 4, 6].include?(cell)
-    arr.each { |line| @line_sums[line] += player_id }
-    nil
   end
 
   def parse_for_number(in_a)
@@ -97,7 +86,6 @@ class TicTacToeGame
     {
       board: @board,
       moves_made: @moves_made,
-      line_sums: @line_sums,
       to_move: [1, 4].index(player_id)
     }
   end

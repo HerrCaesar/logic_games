@@ -39,7 +39,7 @@ class GameState
   end
 
   def game_over?
-    return 1 if game_won?
+    return 1 if @board.game_won?(@cell)
 
     @board.count(&:zero?).zero? ? 2 : false
   end
@@ -55,14 +55,6 @@ class GameState
   # Evaluate user's position as equal to average of childrens' values
   def average_kids_scores
     kids_scores.average_scores
-  end
-
-  def game_won?
-    row0 = @cell / 3 * 3
-    [1, 2].all? { |i| @board[row0] == @board[row0 + i] } ||
-      [3, 6].all? { |i| @board[(@cell + i) % 9] == @board[@cell] } ||
-      [0, 4, 8].include?(@cell) && [4, 8].all? { |i| @board[i] == @board[0] } ||
-      [2, 4, 6].include?(@cell) && [4, 6].all? { |i| @board[i] == @board[2] }
   end
 
   def kids_scores
