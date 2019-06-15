@@ -11,8 +11,4 @@ class TurnBasedSeries < Series
     p1_ws = @record.count(&:zero?)
     super(p1_ws, games_count - p1_ws)
   end
-
-  def choose_secret(_nil)
-    nil
-  end
 end

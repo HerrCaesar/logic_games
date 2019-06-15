@@ -20,17 +20,6 @@ class Controller
     end
   end
 
-  def setup_round
-    @series.new_game(@id_of_leader)
-    # Non-leading player chooses secret in hangman & mastermind; otherwise nil.
-    @series.choose_secret(@id_of_leader ^ 1)
-  end
-
-  def play_round
-    game_over ||= @series.take_turn(@id_of_leader) until game_over
-    game_over == 'saved' || stop_playing?
-  end
-
   def saved_games_available(s_class)
     return false unless File.exist?('saved.json')
 
@@ -82,10 +71,6 @@ class Controller
   def vs_ai?
     print '1-player (1) or 2-player (2)?  '
     !/2/.match?(gets)
-  end
-
-  def midgame?(midgame_data)
-    @midgame = !midgame_data.empty?
   end
 
   def hash_of_game_data

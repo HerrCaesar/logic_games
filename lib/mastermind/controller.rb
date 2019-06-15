@@ -1,7 +1,8 @@
+require_relative '../controller_secret_based.rb'
 require_relative 'series.rb'
 
 # Controls Mastermind series. Special because # of holes & colours needs setting
-class Mastermind < Controller
+class Mastermind < SecretBased
   def initialize
     setup(MastermindSeries)
   end

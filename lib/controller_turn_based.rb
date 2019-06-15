@@ -1,6 +1,10 @@
-# Controls series where the users in the games take turns
+# Control series where the players in the games take turns
 class TurnBased < Controller
   private
+
+  def setup_round
+    @series.new_game(@id_of_leader)
+  end
 
   def play_round
     mover = whose_go ^ 1

@@ -1,7 +1,8 @@
+require_relative '../controller_secret_based.rb'
 require_relative 'series.rb'
 
 # Controls Hangman series. Special because non-leading player chooses secret
-class Hangman < Controller
+class Hangman < SecretBased
   def initialize
     setup(HangmanSeries)
   end
