@@ -42,7 +42,9 @@ end
 class BoardTest < Minitest::Test
   require_relative '../../lib/tic_tac_toe/board.rb'
   def setup
-    @board = Board.new(9) { |i| [0, 3].include?(i) ? i + 1 : 0 }
+    @board = Board.new
+    @board[4] = 'x'
+    @board[8] = '○'
   end
 
   def test_prints_board_to_stdout
@@ -50,20 +52,20 @@ class BoardTest < Minitest::Test
       @board.p
     end[0]
     assert_match(/^[^Xx]*[Xx][^Xx]*$/, out, "Didn't print exactly 1 cross")
-    assert_match(/^[^Oo0]*[Oo0][^Oo0]*$/, out, "Didn't print exactly 1 naught")
+    assert_match(/^[^o○]*[o○][^o○]*$/, out, "Didn't print exactly 1 naught")
   end
 
   def test_returns_true_if_cell_free
-    assert @board.free?(1)
+    assert @board.free?(0)
   end
 
   def test_returns_false_if_cell_occupied
-    refute @board.free?(0)
+    refute @board.free?(4)
   end
 
   def test_shouts_if_cell_occupied
     assert_output(/[:alpha:]+/, '') do
-      @board.yell_unless_cell_free?(0)
+      @board.yell_unless_cell_free?(8)
     end
   end
 

@@ -10,6 +10,7 @@ require_relative '../../lib/tic_tac_toe/game.rb'
 require_relative '../../lib/tic_tac_toe/p_v_c_game.rb'
 require_relative '../../lib/tic_tac_toe/board.rb'
 require_relative 'helpers.rb'
+require_relative '../../lib/tic_tac_toe/modules.rb'
 
 # Create one game class with tester leading, one with AI leading. Save results
 class TestTicTacToe
@@ -50,6 +51,7 @@ end
 
 # Create a stack of games and make every possible move on each go.
 class TestTicTacToeSeries < TicTacToeSeries
+  include OtherID
   def initialize(game)
     @record = { 'ai_wins' => 0, 'draws' => 0, 'ai_losses' => 0 }
     @game_stack = []
@@ -105,20 +107,16 @@ class TestTicTacToeSeries < TicTacToeSeries
   def jump_the_queue(game)
     board = game.instance_variable_get(:@board)
     cells =
-      board.each_with_index.with_object([]) { |(v, i), a| a << i if v.zero? }
+      board.each_with_index.with_object([]) { |(v, i), a| a << i unless v }
     cells.each { |cell| @game_stack.push([game.deep_clone, cell]) }
     false
-  end
-
-  def other(id)
-    (id - 3)**2
   end
 end
 
 # AI moves first before stack is initially populated
 class TestAILeadSeries < TestTicTacToeSeries
   def initialize
-    @id = 4
+    @id = '○'
     game = nil
     OStreamCatcher.catch do
       game = AILead.new
@@ -131,7 +129,7 @@ end
 # Initially populate stack with fresh game and all possible first tester moves
 class TestAIFollowSeries < TestTicTacToeSeries
   def initialize
-    @id = 1
+    @id = 'x'
     game = nil
     OStreamCatcher.catch do
       game = AIFollow.new

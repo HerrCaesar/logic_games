@@ -1,1 +1,146 @@
-{"11/06/2019 23:52":{"commit":{"id":"9194e8eaa752707b433387f1c6f46e3bdb53808c","author":"Zac <zac4793@gmail.com>","date":"Fri Jun 7 14:00:54 2019 +0100","comment":"Refactor tic-tac-toe games to reduce primitive obsession"},"ai_first_results":{"ai_wins":87,"draws":4,"ai_losses":0},"ai_second_results":{"ai_wins":378,"draws":79,"ai_losses":0}},"12/06/2019 11:13":{"commit":{"id":"a4797ec34e9ea1fa6779fb8f59c945680982234d","author":"Zac <zac4793@gmail.com>","date":"Wed Jun 12 11:05:18 2019 +0100","comment":"Make tic-tac-toe completeness test part of regression testing"},"ai_first_results":{"ai_wins":87,"draws":4,"ai_losses":0},"ai_second_results":{"ai_wins":378,"draws":79,"ai_losses":0}},"12/06/2019 11:42":{"commit":{"id":"702ce553caf23e9a3a5b1b7a12cda93dddbbaa7d","author":"Zac <zac4793@gmail.com>","date":"Wed Jun 12 11:15:07 2019 +0100","comment":"Make draws comparison greater-than-or-equal-to."},"ai_first_results":{"ai_wins":87,"draws":4,"ai_losses":0},"ai_second_results":{"ai_wins":378,"draws":79,"ai_losses":0}},"14/06/2019 22:35":{"commit":{"id":"6efa440f8a62d38f6e36ba450f7a938ad683be6c","author":"Zac <zac4793@gmail.com>","date":"Fri Jun 14 19:42:22 2019 +0100","comment":"replace tic-tac-toe AI with generic tree-search AI"},"ai_first_results":{"ai_wins":194,"draws":7,"ai_losses":0},"ai_second_results":{"ai_wins":498,"draws":183,"ai_losses":0}},"14/06/2019 22:36":{"commit":{"id":"6efa440f8a62d38f6e36ba450f7a938ad683be6c","author":"Zac <zac4793@gmail.com>","date":"Fri Jun 14 19:42:22 2019 +0100","comment":"replace tic-tac-toe AI with generic tree-search AI"},"ai_first_results":{"ai_wins":146,"draws":2,"ai_losses":0},"ai_second_results":{"ai_wins":558,"draws":79,"ai_losses":0}},"14/06/2019 23:07":{"commit":{"id":"6efa440f8a62d38f6e36ba450f7a938ad683be6c","author":"Zac <zac4793@gmail.com>","date":"Fri Jun 14 19:42:22 2019 +0100","comment":"replace tic-tac-toe AI with generic tree-search AI"},"ai_first_results":{"ai_wins":146,"draws":2,"ai_losses":0},"ai_second_results":{"ai_wins":558,"draws":79,"ai_losses":0}},"14/06/2019 23:59":{"commit":{"id":"d95a39065b7098f0ea6e52978d3f40c23ee75aca","author":"Zac <zac4793@gmail.com>","date":"Fri Jun 14 23:09:58 2019 +0100","comment":"Use aggregate scoring to maximize win chance. (And update completeness tests)"},"ai_first_results":{"ai_wins":146,"draws":2,"ai_losses":0},"ai_second_results":{"ai_wins":558,"draws":79,"ai_losses":0}}}
+{
+    "11/06/2019 23:52": {
+        "commit": {
+            "id": "9194e8eaa752707b433387f1c6f46e3bdb53808c",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Fri Jun 7 14:00:54 2019 +0100",
+            "comment": "Refactor tic-tac-toe games to reduce primitive obsession"
+        },
+        "ai_first_results": {
+            "ai_wins": 87,
+            "draws": 4,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 378,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "12/06/2019 11:13": {
+        "commit": {
+            "id": "a4797ec34e9ea1fa6779fb8f59c945680982234d",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Wed Jun 12 11:05:18 2019 +0100",
+            "comment": "Make tic-tac-toe completeness test part of regression testing"
+        },
+        "ai_first_results": {
+            "ai_wins": 87,
+            "draws": 4,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 378,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "12/06/2019 11:42": {
+        "commit": {
+            "id": "702ce553caf23e9a3a5b1b7a12cda93dddbbaa7d",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Wed Jun 12 11:15:07 2019 +0100",
+            "comment": "Make draws comparison greater-than-or-equal-to."
+        },
+        "ai_first_results": {
+            "ai_wins": 87,
+            "draws": 4,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 378,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "14/06/2019 22:35": {
+        "commit": {
+            "id": "6efa440f8a62d38f6e36ba450f7a938ad683be6c",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Fri Jun 14 19:42:22 2019 +0100",
+            "comment": "replace tic-tac-toe AI with generic tree-search AI"
+        },
+        "ai_first_results": {
+            "ai_wins": 194,
+            "draws": 7,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 498,
+            "draws": 183,
+            "ai_losses": 0
+        }
+    },
+    "14/06/2019 22:36": {
+        "commit": {
+            "id": "6efa440f8a62d38f6e36ba450f7a938ad683be6c",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Fri Jun 14 19:42:22 2019 +0100",
+            "comment": "replace tic-tac-toe AI with generic tree-search AI"
+        },
+        "ai_first_results": {
+            "ai_wins": 146,
+            "draws": 2,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 558,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "14/06/2019 23:07": {
+        "commit": {
+            "id": "6efa440f8a62d38f6e36ba450f7a938ad683be6c",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Fri Jun 14 19:42:22 2019 +0100",
+            "comment": "replace tic-tac-toe AI with generic tree-search AI"
+        },
+        "ai_first_results": {
+            "ai_wins": 146,
+            "draws": 2,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 558,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "14/06/2019 23:59": {
+        "commit": {
+            "id": "d95a39065b7098f0ea6e52978d3f40c23ee75aca",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Fri Jun 14 23:09:58 2019 +0100",
+            "comment": "Use aggregate scoring to maximize win chance. (And update completeness tests)"
+        },
+        "ai_first_results": {
+            "ai_wins": 146,
+            "draws": 2,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 558,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    },
+    "15/06/2019 09:22": {
+        "commit": {
+            "id": "804d3315dd9d2bb169cd8d4d4dabd717cdc66ec4",
+            "author": "Zac <zac4793@gmail.com>",
+            "date": "Sat Jun 15 00:04:00 2019 +0100",
+            "comment": "Remove line-sums variable and unify #game-over with GameState's (under Board)"
+        },
+        "ai_first_results": {
+            "ai_wins": 146,
+            "draws": 2,
+            "ai_losses": 0
+        },
+        "ai_second_results": {
+            "ai_wins": 558,
+            "draws": 79,
+            "ai_losses": 0
+        }
+    }
+}

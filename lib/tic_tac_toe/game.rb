@@ -15,7 +15,7 @@ class TicTacToeGame
     if @board.game_won?(changed_cell)
       puts "#{who} wins!"
       return which
-    elsif @board.count(&:zero?).zero?
+    elsif @board.all?
       puts 'Draw'
       return 2
     end
@@ -28,23 +28,23 @@ class TicTacToeGame
 
   private
 
-  def user_move(who, player_id)
-    choice = ask_for_move(who, player_id)
+  def user_move(who, x_or_o)
+    choice = ask_for_move(who, x_or_o)
     return choice if choice.is_a? Hash
 
     cell = parse_for_cell(choice)
-    return user_move(who, player_id) unless
+    return user_move(who, x_or_o) unless
       cell && @board.yell_unless_cell_free?(cell)
 
-    @board[cell] = player_id
+    @board[cell] = x_or_o
     @moves_made += 1
     cell
   end
 
-  def ask_for_move(who, player_id)
-    print "#{who} (#{player_id == 1 ? 'X' : 'O'}'s'), describe (eg top left),"\
-          ' or pick a number, 1-9. (Or save and close the game)  '
-    return save_game(player_id) if /(save|close)/.match?(choice = gets.downcase)
+  def ask_for_move(who, x_or_o)
+    print "#{who} (#{x_or_o}'s), describe (eg top left), or pick a number, "\
+      '1-9. (Or save and close the game)  '
+    return save_game(x_or_o) if /(save|close)/.match?(choice = gets.downcase)
 
     choice.strip.split.map { |x| x[0] }
   end
@@ -82,11 +82,11 @@ class TicTacToeGame
     end
   end
 
-  def save_game(player_id)
+  def save_game(x_or_o)
     {
       board: @board,
       moves_made: @moves_made,
-      to_move: [1, 4].index(player_id)
+      to_move: x_or_o == 'x' ? 0 : 1
     }
   end
 end

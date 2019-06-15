@@ -41,7 +41,7 @@ class GameState
   def game_over?
     return 1 if @board.game_won?(@cell)
 
-    @board.count(&:zero?).zero? ? 2 : false
+    @board.all? ? 2 : false
   end
 
   # kills all children except least valuable to user and returns its value

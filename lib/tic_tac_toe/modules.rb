@@ -1,6 +1,7 @@
 # Maps 1 <-> 4
 module OtherID
+  SYMBOLS = ['x', '○'].freeze
   def other(id)
-    (id - 3)**2
+    SYMBOLS[SYMBOLS.index(id) ^ 1]
   end
 end
