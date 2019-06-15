@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'games.rb'
 
 # Creates series of games between 2 players or between player and computer

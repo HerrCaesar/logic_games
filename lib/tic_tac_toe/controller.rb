@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'series.rb'
 require_relative '../controller_turn_based.rb'
 

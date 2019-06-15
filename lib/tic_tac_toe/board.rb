@@ -1,4 +1,4 @@
-# Represents tic-tac-toe board. nil = empty; x = playerA; ○ = playerB
+# Represents tic-tac-toe board. nil = empty; x = playerA; o = playerB
 class Board < Array
   def initialize(length = nil)
     length ? super : super(9)

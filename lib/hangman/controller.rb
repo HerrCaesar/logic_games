@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'series.rb'
 
 # Controls Hangman series. Special because non-leading player chooses secret

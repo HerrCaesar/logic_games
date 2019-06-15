@@ -14,10 +14,7 @@ class Scores < Array
       spaceship = 0
       n = 2
       while spaceship.zero?
-        spaceship = if n > 0
-                      a[n] <=> b[n]
-                    else -1
-                    end
+        spaceship = (n > 0 ? a[n] <=> b[n] : -1)
         n -= 1
       end
       spaceship

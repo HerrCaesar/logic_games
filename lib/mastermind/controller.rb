@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative 'series.rb'
 
 # Controls Mastermind series. Special because # of holes & colours needs setting

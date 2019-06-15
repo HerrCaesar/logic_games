@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Make an array with some methods that allow it to play nim
 class NimGame < Array
   def initialize(size, midgame_data = {})

@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+require_relative 'cntrlr_models.rb'
 
 # General formula for running a series of games
 class Controller
@@ -47,7 +47,7 @@ class Controller
 
   def pick_game(saved)
     puts 'Which game do you want to load? (or just press enter to cancel)'
-    saved.each_with_index { |(key, _val), index| puts "(#{index + 1}) #{key}" }
+    display_save_files(saved)
     ins = gets.chomp
     return false if ins.empty?
 
@@ -55,6 +55,10 @@ class Controller
       saved[saved.keys[ins.to_i - 1]] || pick_game(saved)
     else saved[ins] || pick_game(saved)
     end
+  end
+
+  def display_save_files(saved)
+    saved.each_with_index { |(key, _val), index| puts "(#{index + 1}) #{key}" }
   end
 
   def load_existing_series(s_class, old_game)
@@ -69,43 +73,15 @@ class Controller
 
   def create_series(s_class, options = {})
     @vs_ai = vs_ai?
-    names = organize_teams
+    names = Names.new(@vs_ai)
     @id_of_leader = 0
-    names = choose_second_name(names)
+    names.choose_second(@vs_ai)
     @series = s_class.new(@vs_ai, names, options)
   end
 
   def vs_ai?
     print '1-player (1) or 2-player (2)?  '
     !/2/.match?(gets)
-  end
-
-  def organize_teams
-    print "What's your name?  "
-    [] << case (name = gets.strip.capitalize)
-          when 'Computer'
-            if @vs_ai
-              puts "Hey that's my name! get your own."
-              return organize_teams
-            end
-            name
-          when ''
-            'Player 1'
-          else name
-          end
-  end
-
-  def choose_second_name(names)
-    return add_computers_name(names) if @vs_ai
-
-    print "What's player 2's name?  "
-    names << ((name = gets.strip.capitalize).empty? ? 'Player 2' : name)
-  end
-
-  def add_computers_name(names)
-    names << 'Computer'
-    print 'Do you want to go first to begin with?  '
-    /[nN]/.match?(gets) ? names.reverse! : names
   end
 
   def midgame?(midgame_data)

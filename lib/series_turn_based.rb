@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Create series of games where they take turns
 class TurnBasedSeries < Series
   def take_turn(which)

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Controls series where the users in the games take turns
 class TurnBased < Controller
   private

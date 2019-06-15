@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Shared methods between all individual games of hangman
 class HangmanGame
   DICTONARY = File.expand_path('../../static/dictionary.txt', __dir__).freeze

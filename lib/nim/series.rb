@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative '../series_turn_based.rb'
 require_relative 'games.rb'
 
