@@ -148,12 +148,12 @@ class AILead < MastermindGame
     @poss.keep_if { |code| code.compare_cattle(the_guess, cattle) }
   end
 
-  def get_feedback(verbose = false)
-    ask_for_feedback(verbose)
+  def get_feedback(verbose = false, owrt_prev = nil)
+    ask_for_feedback(verbose, owrt_prev)
     in_s = gets_without_return
-    print "\b" * (padding = (verbose ? 250 : 32) + in_s.length)
+    print "\b" * (padding = (verbose ? 211 : 32) + in_s.length)
     case in_s
-    when /[hH]/
+    when /([hH]|^$)/
       get_feedback(true)
     when /[sScC]/
       save_game
@@ -161,7 +161,7 @@ class AILead < MastermindGame
     end
   end
 
-  def ask_for_feedback(verbose = false)
+  def ask_for_feedback(verbose, owrt_prev)
     print "Enter the number of #{B}, then #{C}"
     if verbose
       print ". A #{B} is a pair of dots, one in the guess, one in your code, "\
@@ -169,6 +169,7 @@ class AILead < MastermindGame
             "same colour, but that haven't been counted as a #{B} or a #{C}"
     end
     print ':  '
+    [' ', "\b"].each { |c| owrt_prev.times { print c } } if owrt_prev
   end
 
   def gets_without_return
@@ -189,11 +190,9 @@ class AILead < MastermindGame
   end
 
   def parse_feedback(in_s, padding)
-    return display_feedback(0, 0, padding) if in_s.empty?
-
     cattle = in_s.scan(/\d/).map(&:to_i)
-    return get_feedback(true) if cattle.length != 2 ||
-                                 cattle.any?(&:negative?) || cattle.sum > 4
+    return get_feedback(true, in_s.length) if
+      cattle.length != 2 || cattle.any?(&:negative?) || cattle.sum > 4
 
     display_feedback(*cattle, padding)
     cattle
