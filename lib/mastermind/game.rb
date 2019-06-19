@@ -11,7 +11,7 @@ class MastermindGame
   def initialize(holes = 2, colours_len = 3, midgame_data = {})
     @colours_len = colours_len
     @max_guesses = ((holes * colours_len)**0.6).round
-    @guesses = midgame_data['guesses'] || []
+    @guesses = (midgame_data['guesses'] || []).map { |g| Code.new(g) }
     @game_over = false
     Code.colours = COLOURS[0...@colours_len]
   end

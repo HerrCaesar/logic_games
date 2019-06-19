@@ -122,7 +122,11 @@ class AILead < MastermindGame
     @guesses.each_with_index do |guess, i|
       guess.print_pips(@max_guesses - i)
       cattle = @all_cattle[i]
-      cattle ? display_feedback(*cattle) : feedback(guess)
+      if cattle
+        display_feedback(*cattle)
+        @codes.sort_by_cattle!(guess, cattle)
+      else feedback(guess)
+      end
     end
   end
 end

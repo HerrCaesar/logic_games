@@ -6,6 +6,11 @@ require_relative 'state_scores.rb'
 class PvC < TicTacToeGame
   include OtherID
 
+  def initialize(midgame_data = {})
+    super
+    reload_game_state_from_file unless midgame_data.empty?
+  end
+
   private
 
   def ai_move(id)
@@ -24,6 +29,13 @@ class PvC < TicTacToeGame
 
   def board_but(cell)
     (0..8).to_a - [cell]
+  end
+
+  def reload_game_state_from_file
+    ai_symbol = @board.count.odd? ? 'X' : '○' # User can only save on their go
+    arbitrary_ai_cell = @board.index(ai_symbol)
+    @root_state = GameState.new(@board, arbitrary_ai_cell, false, ai_symbol)
+    @root_state.evaluate([0..8].select { |i| @board[i].nil? })
   end
 end
 

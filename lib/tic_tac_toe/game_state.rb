@@ -2,12 +2,12 @@
 class GameState
   include OtherID
   attr_reader :score, :children, :cell
-  def initialize(board, move_in_cell, ai_go, ai_id)
+  def initialize(board, move_in_cell, ai_go, ai_symbol)
     @cell = move_in_cell
     @board = board.dup
-    @board[@cell] = (ai_go ? ai_id : other(ai_id))
+    @board[@cell] = (ai_go ? ai_symbol : other(ai_symbol))
     @ai_go = ai_go
-    @ai_id = ai_id
+    @ai_symbol = ai_symbol
   end
 
   def evaluate(free_cells)
@@ -33,7 +33,7 @@ class GameState
   # Create a child game-state for every free cell
   def create_children(free_cells)
     @children = free_cells.each_with_object([]) do |cell, arr|
-      arr << { game_state: GameState.new(@board.dup, cell, !@ai_go, @ai_id),
+      arr << { game_state: GameState.new(@board.dup, cell, !@ai_go, @ai_symbol),
                its_frees: free_cells - [cell] }
     end
   end
