@@ -21,7 +21,7 @@ class Controller
   end
 
   def saved_games_available(s_class)
-    return false unless File.exist?('saved.json')
+    return {} unless File.exist?('saved.json')
 
     require 'json'
     JSON.parse(File.read('saved.json')).select do |_k, gameclass|

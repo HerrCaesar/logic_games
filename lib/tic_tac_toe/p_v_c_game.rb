@@ -16,7 +16,6 @@ class PvC < TicTacToeGame
   def ai_move(id)
     cell = @root_state.children[0][:game_state].cell
     @board[cell] = id
-    @moves_made += 1
     cell
   end
 
@@ -53,7 +52,7 @@ class AILead < PvC
   end
 
   def move(who, _which = nil)
-    cell = @moves_made.even? ? ai_move('x') : user_move(who, '○')
+    cell = @board.count(&:nil?).odd? ? ai_move('x') : user_move(who, '○')
     return cell if cell.is_a? Hash
 
     move_root_state(cell)
@@ -67,7 +66,6 @@ class AILead < PvC
       Scores.new(moves.each_with_object([]) { |(_c, h), a| a << h[:score] })
     cell = scores.normalise_scores.choose_wisely**2
     @board[cell] = 'x'
-    @moves_made += 1
     @root_state = moves[cell][:game_state]
   end
 end
@@ -83,7 +81,7 @@ class AIFollow < PvC
   end
 
   def move(who, _which = nil)
-    cell = @moves_made.odd? ? ai_move('○') : user_move(who, 'x')
+    cell = @board.count(&:nil?).even? ? ai_move('○') : user_move(who, 'x')
     return cell if cell.is_a? Hash
 
     move_root_state(cell)

@@ -1,13 +1,8 @@
 # Shared methods between PvP and PvC games
 class TicTacToeGame
   def initialize(midgame_data = {})
-    if midgame_data.empty?
-      @board = Board.new
-      @moves_made = 0
-    else
-      @board = Board.new(midgame_data['board'])
-      @moves_made = midgame_data['moves_made']
-    end
+    @board =
+      (midgame_data.empty? ? Board.new : Board.new(midgame_data['board']))
     @board.p
   end
 
@@ -37,7 +32,6 @@ class TicTacToeGame
       cell && @board.yell_unless_cell_free?(cell)
 
     @board[cell] = x_or_o
-    @moves_made += 1
     cell
   end
 
@@ -87,7 +81,6 @@ class TicTacToeGame
 
     {
       board: @board,
-      moves_made: @moves_made,
       to_move: x_or_o == 'x' ? 0 : 1
     }
   end
