@@ -1,16 +1,16 @@
-require_relative 'games.rb'
+require_relative 'game.rb'
 require_relative 'helpers.rb'
 
 # Creates series of games between 2 players or between player and computer
 class MastermindSeries < Series
   def new_game(id_of_leader, midgame_data = {})
     who = @names[id_of_leader]
-    @game = if @vs_ai
-              if who == 'Computer'
-                AILead.new(@holes, @colours, midgame_data)
-              else AIFollow.new(who, @holes, @colours, midgame_data)
-              end
-            else PvP.new(who, @holes, @colours, midgame_data)
+    @game = if who == 'Computer'
+              require_relative 'ai_lead.rb'
+              AILead.new(@holes, @colours, midgame_data)
+            else
+              require_relative 'user_guess.rb'
+              (@vs_ai ? AIFollow : PvP).new(who, @holes, @colours, midgame_data)
             end
   end
 
