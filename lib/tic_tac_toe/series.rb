@@ -24,7 +24,7 @@ class TicTacToeSeries < TurnBasedSeries
               AILead.new(midgame_data)
             else AIFollow.new(midgame_data)
             end
-    @game.prepare_root_state(@names[id_of_leader])
+    @game.prepare_root_state(@names[id_of_leader]) if midgame_data.empty?
   end
 
   def game_over?(which, changed_cell)

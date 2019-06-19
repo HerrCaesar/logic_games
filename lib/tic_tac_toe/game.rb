@@ -83,6 +83,8 @@ class TicTacToeGame
   end
 
   def save_game(x_or_o)
+    return {} if @board.all?(&:nil?)
+
     {
       board: @board,
       moves_made: @moves_made,

@@ -32,10 +32,10 @@ class PvC < TicTacToeGame
   end
 
   def reload_game_state_from_file
-    ai_symbol = @board.count.odd? ? 'X' : '○' # User can only save on their go
+    ai_symbol = @board.count(&:nil?).even? ? 'x' : '○' # Only save on user's go
     arbitrary_ai_cell = @board.index(ai_symbol)
-    @root_state = GameState.new(@board, arbitrary_ai_cell, false, ai_symbol)
-    @root_state.evaluate([0..8].select { |i| @board[i].nil? })
+    @root_state = GameState.new(@board, arbitrary_ai_cell, true, ai_symbol)
+    @root_state.evaluate((0..8).to_a.select { |i| @board[i].nil? })
   end
 end
 
