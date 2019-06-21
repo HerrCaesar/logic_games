@@ -43,7 +43,7 @@ class AILead < PvC
   def prepare_root_state(_who)
     initial_moves =
       [0, 1, 4].each_with_object({}) do |cell, hsh|
-        new_state = GameState.new(@board, cell, true, 'x')
+        new_state = AIMovedState.new(@board, cell, 'x')
         hsh[cell] =
           { game_state: new_state, score: new_state.evaluate(board_but(cell)) }
       end
@@ -76,7 +76,7 @@ class AIFollow < PvC
     cell = user_move(who, 'x')
     return cell if cell.is_a? Hash
 
-    @root_state = GameState.new(Board.new, cell, false, '○')
+    @root_state = UserMovedState.new(Board.new, cell, '○')
     @root_state.evaluate(board_but(cell))
   end
 

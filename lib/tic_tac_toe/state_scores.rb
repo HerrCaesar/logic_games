@@ -1,23 +1,23 @@
-# Each score is ratio of [ai-wins, draws, user-wins] in a game-tree
+# Each score is hash of:
+#   points -> max moves between a user decision and them losing (or nil); and
+#   score -> ratio of [ai-wins : draws : user-wins] in a game-tree
 class Scores < Array
   def normalise_scores
     map do |score|
-      sum = score.sum.to_f
-      norm_score = score.map { |x| x / sum }
-      norm_score
+      sum = score[:score].sum.to_f
+      normed_score = { points: score[:points] }
+      normed_score[:score] = score[:score].map { |x| x / sum }
+      normed_score
     end
   end
 
-  # Sorts childrens' value by least chance of opponent win, then draw, else left
+  # Sorts childrens' value by least chance of opponent win, else picks dead-cert
+  # else highest points, else lowest draw-rate
   def choose_wisely
     each_with_index.min do |(a, _i), (b, _j)|
-      spaceship = 0
-      n = 2
-      while spaceship.zero?
-        spaceship = (n > 0 ? a[n] <=> b[n] : -1)
-        n -= 1
-      end
-      spaceship
+      a_los = a[:score][2]
+      loss_comp = a_los <=> b[:score][2]
+      loss_comp.zero? ? compare_by_draws(a, b) : loss_comp
     end[1]
   end
 
@@ -25,16 +25,42 @@ class Scores < Array
   # A = Σ(Si * l / ΣSi); g = greatest common divisor of A
   # = G A / g
   def average_scores
-    sums = map(&:sum)
+    sums = map_to_score_sums
     l_c_m = sums.inject(1, :lcm)
     score = each_with_object([0, 0, 0]).with_index do |(s_score, arr), i|
-      s_score.each_with_index { |x, j| arr[j] += x * l_c_m / sums[i] }
+      s_score[:score].each_with_index { |x, j| arr[j] += x * l_c_m / sums[i] }
     end
     g_c_d = score.inject(score[0], :gcd)
     score.map! { |x| x / g_c_d }
   end
 
+  def max_points
+    result = map { |score| score[:points] || 0 }.max
+    result.zero? ? nil : result
+  end
+
   private
+
+  def compare_by_wins(a_s, b_s)
+    return 1 if a_s[:score][0].zero?
+
+    return -1 if b_s[:score][0].zero?
+
+    compare_by_draws(a_s, b_s)
+  end
+
+  def compare_by_draws(a_s, b_s)
+    return -1 if (a_draw_score = a_s[:score][1]).zero?
+
+    return 1 if (b_draw_score = b_s[:score][1]).zero?
+
+    point_comp = (b_s[:points] || 0) <=> (a_s[:points] || 0) # Note: swap sides!
+    point_comp.zero? ? a_draw_score <=> b_draw_score : point_comp
+  end
+
+  def map_to_score_sums
+    map { |score| score[:score].sum }
+  end
 
   def map(&block)
     dup.map!(&block)
