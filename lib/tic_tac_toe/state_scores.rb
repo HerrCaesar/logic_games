@@ -14,10 +14,10 @@ class Scores < Array
   # Sorts childrens' value by least chance of opponent win, else picks dead-cert
   # else highest points, else lowest draw-rate
   def choose_wisely
-    each_with_index.min do |(a, _i), (b, _j)|
-      a_los = a[:score][2]
-      loss_comp = a_los <=> b[:score][2]
-      loss_comp.zero? ? compare_by_draws(a, b) : loss_comp
+    each_with_index.min do |(a_s, _i), (b_s, _j)|
+      a_los = a_s[:score][2]
+      loss_comp = a_los <=> b_s[:score][2]
+      loss_comp.zero? ? compare_by_wins(a_s, b_s) : loss_comp
     end[1]
   end
 
@@ -50,12 +50,19 @@ class Scores < Array
   end
 
   def compare_by_draws(a_s, b_s)
-    return -1 if (a_draw_score = a_s[:score][1]).zero?
+    a_draw_s = a_s[:score][1]
+    b_draw_s = b_s[:score][1]
+    return (b_draw_s.zero? ? compare_points(a_s, b_s) : -1) if a_draw_s.zero?
 
-    return 1 if (b_draw_score = b_s[:score][1]).zero?
+    return 1 if b_draw_s.zero?
 
-    point_comp = (b_s[:points] || 0) <=> (a_s[:points] || 0) # Note: swap sides!
-    point_comp.zero? ? a_draw_score <=> b_draw_score : point_comp
+    point_comp = compare_points(a_s, b_s, true)
+    point_comp.zero? ? a_draw_s <=> b_draw_s : point_comp
+  end
+
+  # Spaceship comparison of gamestates' points. Swap if scores include draws
+  def compare_points(a_s, b_s, swap = false)
+    ((a_s[:points] || 0) <=> (b_s[:points] || 0)) * (swap ? -1 : 1)
   end
 
   def map_to_score_sums
