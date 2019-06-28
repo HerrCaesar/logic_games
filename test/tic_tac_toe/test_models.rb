@@ -8,13 +8,6 @@ class CompletenessTest < Minitest::Test
     results = TestTicTacToe.new.run_tests
     this_result = results.max_by { |k, _v| get_time(k) }[1]
     assert_equal(losses(this_result), 0, 'The AI loses!')
-    %w[first second].each do |order|
-      category = 'ai_' + order + '_results'
-      lowest_d_r, date = lowest_draw_rate(results, category)
-      this_d_r = draw_rate(this_result, category)
-      assert_operator(lowest_d_r, :>=, this_d_r, "Version on #{date} had lower"\
-        " draw rate (#{lowest_d_r}% < #{this_d_r}%) when AI moved #{order}.")
-    end
   end
 
   private
@@ -65,13 +58,13 @@ class BoardTest < Minitest::Test
 
   def test_shouts_if_cell_occupied
     assert_output(/[:alpha:]+/, '') do
-      @board.yell_unless_cell_free?(8)
+      @board.yell_unless_free?(8)
     end
   end
 
   def test_quiet_if_cell_free
     assert_silent do
-      @board.yell_unless_cell_free?(1)
+      @board.yell_unless_free?(1)
     end
   end
 end

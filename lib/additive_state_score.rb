@@ -11,8 +11,8 @@ class Scores < Array
     end
   end
 
-  # Sorts childrens' value by least chance of opponent win, else picks dead-cert
-  # else highest points, else lowest draw-rate
+  # Picks child with lowest chance of opponent win, else dead-cert, else highest
+  # points, else lowest draw-rate. Returns child's index.
   def choose_wisely
     each_with_index.min do |(a_s, _i), (b_s, _j)|
       a_los = a_s[:score][2]

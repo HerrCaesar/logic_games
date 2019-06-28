@@ -1,39 +1,6 @@
 # Shared methods between PvP and PvC games
-class TicTacToeGame
-  def initialize(midgame_data = {})
-    @board =
-      (midgame_data.empty? ? Board.new : Board.new(midgame_data['board']))
-    @board.p
-  end
-
-  def game_over?(who, which, changed_cell)
-    if @board.game_won?(changed_cell)
-      puts "#{who} wins!"
-      return which
-    elsif @board.all?
-      puts 'Draw'
-      return 2
-    end
-    false
-  end
-
-  def p
-    @board.p
-  end
-
+class TicTacToeGame < AdditiveStateGame
   private
-
-  def user_move(who, x_or_o)
-    choice = ask_for_move(who, x_or_o)
-    return choice if choice.is_a? Hash
-
-    cell = parse_for_cell(choice)
-    return user_move(who, x_or_o) unless
-      cell && @board.yell_unless_cell_free?(cell)
-
-    @board[cell] = x_or_o
-    cell
-  end
 
   def ask_for_move(who, x_or_o)
     print "#{who} (#{x_or_o}'s), describe (eg top left), or pick a number, "\
@@ -43,23 +10,23 @@ class TicTacToeGame
     choice.strip.split.map { |x| x[0] }
   end
 
-  def parse_for_cell(choice)
-    case choice.length
+  def parse_for_position(in_a)
+    case in_a.length
     when 1
-      parse_for_number(choice)
+      parse_for_number(in_a)
     when 2
-      parse_for_descrip(choice)
-    else puts 'Enter two words, or the cell number from 1 to 9.'
+      parse_for_descrip(in_a)
+    else grumble
     end
   end
 
   def parse_for_number(in_a)
     if in_a[0] == 'm'
       4
-    elsif in_a[0].to_i.between?(1, 9)
-      in_a[0].to_i - 1
+    elsif (choice = in_a[0].to_i).between?(1, 9)
+      choice - 1
     else
-      puts 'Enter two words, or the cell number from 1 to 9.'
+      grumble
       false
     end
   end
@@ -74,6 +41,10 @@ class TicTacToeGame
     else
       in_a[0] * 3 + in_a[1]
     end
+  end
+
+  def grumble
+    puts 'Enter two words, or the cell number from 1 to 9.'
   end
 
   def save_game(x_or_o)

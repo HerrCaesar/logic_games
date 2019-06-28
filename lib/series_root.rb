@@ -19,8 +19,8 @@ class Series
             end
   end
 
-  def p(p1_ws, p2_ws)
-    puts "#{@names[0]} - #{p1_ws}; #{@names[1]} - #{p2_ws}."
+  def p(p1_wins, p2_wins)
+    puts "#{@names[0]} - #{p1_wins}; #{@names[1]} - #{p2_wins}."
     print 'Rematch, save or exit?   '
   end
 

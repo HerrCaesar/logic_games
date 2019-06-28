@@ -1,5 +1,3 @@
-require_relative 'cntrlr_models.rb'
-
 # General formula for running a series of games
 class Controller
   def do_a_round

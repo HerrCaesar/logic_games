@@ -4,13 +4,13 @@
    board.rb].each { |filename| require_relative(filename) }
 
 # Controls tic-tac-toe series
-class TicTacToe < Additive
+class Connect4 < Additive
   def initialize
-    setup(TicTacToeSeries)
+    setup(Connect4Series)
   end
 end
 
 if /main\.rb$/.match? $PROGRAM_NAME
-  controller = TicTacToe.new
+  controller = Connect4.new
   end_series ||= controller.do_a_round until end_series
 end

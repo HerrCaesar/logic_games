@@ -8,7 +8,7 @@ class TurnBasedSeries < Series
   end
 
   def p(games_count = @record.length)
-    p1_ws = @record.count(&:zero?)
-    super(p1_ws, games_count - p1_ws)
+    p1_wins = @record.count(&:zero?)
+    super(p1_wins, games_count - p1_wins)
   end
 end

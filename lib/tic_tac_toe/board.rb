@@ -14,6 +14,10 @@ class Board < Array
     p_bottom
   end
 
+  def move(cell, id)
+    self[cell] = id
+  end
+
   def game_won?(cell)
     row_done?(cell) || column_done?(cell) || back_diag_done?(cell) ||
       forward_diag_done?(cell)
@@ -23,7 +27,7 @@ class Board < Array
     self[cell].nil?
   end
 
-  def yell_unless_cell_free?(cell)
+  def yell_unless_free?(cell)
     freeness = free?(cell)
     puts 'This square is taken!' unless freeness
     freeness
