@@ -1,5 +1,5 @@
-require_relative 'series.rb'
-require_relative '../controller_turn_based.rb'
+%w[games.rb ../series_turn_based.rb series.rb
+   ../controller_turn_based.rb].each { |f| require_relative(f) }
 
 # Controls Nim series. Special because number of heaps needs setting
 class Nim < TurnBased

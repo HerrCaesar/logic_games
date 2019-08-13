@@ -4,18 +4,14 @@ module Virginity
     @moved = false
     super(*args)
   end
-
-  def move(new_square)
-    super
-    @moved = true
-  end
 end
 
 # Ancestor of all chess piece objects
 class Piece
   attr_reader :colour
+  attr_accessor :square
 
-  def initialize(colour)
+  def initialize(colour, rank, file)
     @colour = colour
     @square = Vector[rank, file]
     @taken = false
@@ -35,9 +31,14 @@ class Piece
 
   private
 
-  def each_step_to(target, step_vector)
+  def grumble(test = false)
+    puts "A #{self.class} can't move like that." unless test
+    false
+  end
+
+  def each_step_to(target, step_vector, inclusive = false)
     steps = []
-    current = @square + step_vector
+    current = inclusive ? @square : @square + step_vector
     until current == target
       steps << current
       current += step_vector
@@ -55,16 +56,20 @@ class Pawn < Piece
     @symbol, @sign = colour == 'w' ? ['♟', :+@] : ['♙', :-@]
   end
 
-  def move?(target)
-    hsh = case target - @square
-          when Vector[1.send(@sign), 0]
-            { empty: [target] }
-          when Vector[2.send(@sign), 0]
-            return @moved ? false : { empty: [target, square_in_front] }
-          when Vector[1.send(@sign), 1], Vector[1.send(@sign), -1]
-            hsh = { enemy: [target] } ##################################### Dunno
-            en_passon_range? ? hsh : (return hsh.merge(en_passon: true))
-          end
+  def conds_of_move(target, test = false)
+    hsh =
+      case target - @square
+      when Vector[1.send(@sign), 0]
+        { empty: [target] }
+      when Vector[2.send(@sign), 0]
+        return @moved ? false : { empty: [target, square_in_front] }
+      when Vector[1.send(@sign), 1], Vector[1.send(@sign), -1]
+        return { enemy: [target, target - Vector[1.send(@sign), 0]] } if
+          en_passon_range?
+
+        { enemy: [target] }
+      else (return grumble(test))
+      end
     promotion_range? ? hsh.merge(promotion: true) : hsh
   end
 
@@ -89,34 +94,40 @@ end
 
 # Any piece that can only move to certain spaces near them
 class Melee < Piece
-  def move?(target)
-    STEPS.include?((target - @square).map!(&:abs))
+  def conds_of_move(target)
+    @steps.include?((target - @square).map!(&:abs))
   end
 end
 
 # Moves one space at a time. Can't move into or through check
 class King < Melee
-  STEPS = [Vector[1, 0], Vector[0, 1], Vector[1, 1]].freeze
   include Virginity
 
-  def initialize(colour)
-    super
+  def initialize(colour, rank, file = 4)
     @symbol = colour == 'w' ? '♚' : '♔'
+    @steps = [Vector[1, 0], Vector[0, 1], Vector[1, 1]].freeze
+    super
   end
 
-  def move?(target)
-    return { king_moved: true } if super
+  def conds_of_move(target, test = false)
+    return {} if super(target)
 
     return complain if @moved
 
-    rook, between = case target - @square
-                    when Vector[0, 2] # Castle kingside
-                      [target + Vector[0, 1], each_step_to(rook, Vector[0, 1])]
-                    when Vector[0, -2] # Castle queenside
-                      [target - Vector[0, 2], each_step_to(rook, Vector[0, -1])]
-                    else (return complain)
-                    end
-    { unthreatened: between, castle: rook }
+    rook_square, king_step =
+      case target - @square
+      when Vector[0, 2] # Castle kingside
+        [@square + Vector[0, 3], Vector[0, 1]]
+      when Vector[0, -2] # Castle queenside
+        [@square + Vector[0, -4], Vector[0, -1]]
+      else (return complain(test))
+      end
+
+    {
+      empty: each_step_to(rook_square, king_step),
+      unthreatened: each_step_to(target, king_step, true),
+      move_rook: { from: rook_square, to: @square + king_step }
+    }
   end
 
   def castle_kingside
@@ -129,8 +140,9 @@ class King < Melee
 
   private
 
-  def complain
-    if @moved
+  def complain(test)
+    if test
+    elsif @moved
       puts "Once you've moved the King, he can only move one square at a time."
     else puts "The King can't move like that."
     end
@@ -140,50 +152,49 @@ end
 
 # Moves 2 spaces in on direction and one space in the other. Can jump peices
 class Knight < Melee
-  STEPS = [Vector[2, 1], Vector[1, 2]].freeze
-  def initialize(colour, file, promotion = false)
+  def initialize(colour, rank, file)
     @symbol = colour == 'w' ? '♞' : '♘'
+    @steps = [Vector[2, 1], Vector[1, 2]].freeze
     super
   end
 
-  def move?(target)
-    super ? {} : false
+  def conds_of_move(target, test = false)
+    super(target) ? {} : grumble(test)
   end
 end
 
 # Any piece that can move many spaces in a direction
 class Ranged < Piece
   # False if piece can't move there, else return array of all squares in-between
-  def move?(target)
+  def conds_of_move(target, test = false)
     move_vector = (target - @square)
     step_vector = move_vector / move_vector[0].gcd(move_vector[1])
-    unless MOVEMENT_VECTORS.include? step_vector.map!(&:abs)
-      puts "A #{self.class} can't move like that."
-      return false
-    end
-    { empty: each_step_to(target, step_vector) }
+    return grumble(test) unless
+      @movement_vectors.include? step_vector.map(&:abs)
+
+    (steps = each_step_to(target, step_vector)).nil? ? {} : { empty: steps }
   end
 end
 
 # Moves many spaces along a rank, file or diagonal
 class Queen < Ranged
-  MOVEMENT_VECTORS = [Vector[1, 1], Vector[1, 0], Vector[0, 1]].freeze
-
-  def initialize(colour, file = 3, promotion = false)
-    super
+  def initialize(colour, rank, file = 3)
     @symbol = colour == 'w' ? '♛' : '♕'
+    @movement_vectors = [Vector[1, 1], Vector[1, 0], Vector[0, 1]].freeze
+    super
   end
 end
 
 # Moves many spaces along a rank or file
 class Rook < Ranged
-  MOVEMENT_VECTORS = [Vector[1, 0], Vector[0, 1]].freeze
   include Virginity
   attr_reader :moved
 
-  def initialize(colour, file, promotion = false)
-    super
+  def initialize(colour, rank, file, promotion = false)
+    @moved = promotion
     @symbol = colour == 'w' ? '♜' : '♖'
+    @movement_vectors = [Vector[1, 0], Vector[0, 1]].freeze
+    super(colour, rank, file)
   end
 
   def castle
@@ -194,10 +205,9 @@ end
 
 # Moves many spaces along a diagonal
 class Bishop < Ranged
-  MOVEMENT_VECTORS = [Vector[1, 1]].freeze
-
-  def initialize(colour, file, promotion = false)
-    super
+  def initialize(colour, rank, file)
     @symbol = colour == 'w' ? '♝' : '♗'
+    @movement_vectors = [Vector[1, 1]].freeze
+    super
   end
 end
