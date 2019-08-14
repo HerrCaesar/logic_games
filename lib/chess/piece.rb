@@ -78,7 +78,7 @@ class Pawn < Piece
         { enemy: [target] }
       else (return grumble(test))
       end
-    promotion_range? ? hsh.merge(promotion: true) : hsh
+    promotion_range? ? hsh.merge(promotion: target) : hsh
   end
 
   private
@@ -87,16 +87,16 @@ class Pawn < Piece
     @square + Vector[1, 0].send(@sign)
   end
 
-  def in_range?(half_ranks)
-    @square == (7 + half_ranks.send(@sign)) / 2
-  end
-
   def en_passon_range?
     in_range?(1)
   end
 
   def promotion_range?
     in_range?(5)
+  end
+
+  def in_range?(half_ranks)
+    @square[0] == (7 + half_ranks.send(@sign)) / 2
   end
 end
 

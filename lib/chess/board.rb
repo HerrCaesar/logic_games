@@ -131,7 +131,7 @@ class Board
       @board[*move_rook[:to]] = rook
       rook.move(move_rook[:to])
     end
-    choose_promotee(colour, target) if promotion
+    choose_promotee(colour, promotion) if promotion
   end
 
   def choose_promotee(colour, target)
