@@ -69,7 +69,7 @@ class Board
           (conds = poss_piece.conds_of_move(hsh[:target], true)) &&
           (extra_changes = satisfied?(colour, conds, last_move))
       end
-    return general_grumble(piece_type) unless piece
+    return general_grumble(colour, piece_type) unless piece
 
     suck_it_n_see(colour, piece, piece.square, hsh[:target], extra_changes)
   end
@@ -188,8 +188,13 @@ class Board
     (piece = @board[*target]) && piece.colour == off_colour
   end
 
-  def general_grumble(piece_type)
-    puts "No #{piece_type.to_s.downcase} can move to that square."
+  def general_grumble(colour, piece_type)
+    piece_name = piece_type.to_s.downcase
+    if (piece_count = count_pieces(colour, piece_type)).zero?
+      puts "You don't have any #{piece_name}s."
+    else puts "#{piece_count == 1 ? 'Your' : 'No'} #{piece_name} can move to "\
+              'that square.'
+    end
     false
   end
 
@@ -201,6 +206,17 @@ class Board
   def castle_grumble(phrase)
     puts 'You can' + phrase + '.'
     false
+  end
+
+  def count_pieces(colour, piece_type)
+    piece_count = 0
+    @board.each do |piece|
+      if piece && piece.is_a?(piece_type) && piece.colour == colour
+        piece_count += 1
+        break if piece_count > 1
+      end
+    end
+    piece_count
   end
 
   def populate_pawns
