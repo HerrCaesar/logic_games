@@ -4,12 +4,20 @@ module Virginity
     @moved = false
     super(*args)
   end
+
+  def move(target_square, experiment = nil)
+    @moved = if !@moved && experiment == 'out'
+               'provisionally'
+             else @moved != 'provisionally' || experiment != 'back'
+             end
+    super(target_square)
+  end
 end
 
 # Ancestor of all chess piece objects
 class Piece
   attr_reader :colour
-  attr_accessor :square
+  attr_reader :square
 
   def initialize(colour, rank, file)
     @colour = colour
@@ -17,7 +25,7 @@ class Piece
     @taken = false
   end
 
-  def move(new_square)
+  def move(new_square, _experiment = nil)
     @square = new_square
   end
 
@@ -112,7 +120,7 @@ class King < Melee
   def conds_of_move(target, test = false)
     return {} if super(target)
 
-    return complain if @moved
+    return complain(test) if @moved
 
     rook_square, king_step =
       case target - @square
@@ -191,10 +199,10 @@ class Rook < Ranged
   attr_reader :moved
 
   def initialize(colour, rank, file, promotion = false)
-    @moved = promotion
     @symbol = colour == 'w' ? '♜' : '♖'
     @movement_vectors = [Vector[1, 0], Vector[0, 1]].freeze
     super(colour, rank, file)
+    @moved = promotion
   end
 
   def castle

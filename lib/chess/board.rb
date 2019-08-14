@@ -65,8 +65,7 @@ class Board
     piece_type = hsh[:piece] || Pawn
     piece =
       possible_squares(hsh).find do |poss_piece|
-        poss_piece.is_a?(piece_type) &&
-          poss_piece.colour == colour &&
+        poss_piece.is_a?(piece_type) && poss_piece.colour == colour &&
           (conds = poss_piece.conds_of_move(hsh[:target], true)) &&
           (extra_changes = satisfied?(colour, conds, last_move))
       end
@@ -95,10 +94,11 @@ class Board
     return castle_grumble("'t castle through check") unless
       hsh[:unthreatened].none? { |square| threatened?(threat_colour, square) }
 
-    return castle_grumble('only castle with one of your rooks') unless
-      (rook = @board[*hsh[:move_rook[:from]]]) && rook.colour != threat_colour
+    rook = @board[*hsh[:move_rook][:from]]
+    return castle_grumble(' only castle with one of your rooks') unless
+      rook && rook.colour != threat_colour && rook.is_a?(Rook)
 
-    !rook.moved || castle_grumble("only castle if your rook hasn't moved")
+    !rook.moved || castle_grumble(" only castle if your rook hasn't moved")
   end
 
   def pawn_take_satisfied?(off_colour, hsh, last_move)
@@ -111,12 +111,12 @@ class Board
     @board[*origin] = nil
     taken = @board[*target]
     @board[*target] = piece
-    piece.square = target
+    piece.move(target, 'out')
     if check?(colour)
       puts "You can't move there; you'll be in check."
       @board[*target] = taken
       @board[*origin] = piece
-      piece.square = origin
+      piece.move(origin, 'back')
       false
     else
       extra_board_changes(colour, extra_changes)
@@ -129,7 +129,7 @@ class Board
       rook = @board[*move_rook[:from]]
       @board[*move_rook[:from]] = nil
       @board[*move_rook[:to]] = rook
-      rook.square = move_rook[:to]
+      rook.move(move_rook[:to])
     end
     choose_promotee(colour, target) if promotion
   end
@@ -199,7 +199,7 @@ class Board
   end
 
   def castle_grumble(phrase)
-    puts "You can" + phrase + '.'
+    puts 'You can' + phrase + '.'
     false
   end
 
