@@ -95,8 +95,8 @@ class Board
       hsh[:unthreatened].none? { |square| threatened?(threat_colour, square) }
 
     rook = @board[*hsh[:move_rook][:from]]
-    return castle_grumble(' only castle with one of your rooks') unless
-      rook && rook.colour != threat_colour && rook.is_a?(Rook)
+    return castle_grumble(' only castle with a rook') unless
+      rook.is_a?(Rook) && rook.colour != threat_colour
 
     !rook.moved || castle_grumble(" only castle if your rook hasn't moved")
   end
