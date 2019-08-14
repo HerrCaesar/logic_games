@@ -1,8 +1,5 @@
 # Shared methods between PvP and PvC games
 class ChessGame
-  PIECES = Hash.new(Pawn).merge!('K' => King, 'Q' => Queen, 'R' => Rook,
-                                 'B' => Bishop, 'N' => Knight).freeze
-
   def initialize(midgame_data = {})
     @board = Board.new
     @graveyard = Graveyard.new
@@ -39,80 +36,24 @@ class ChessGame
   def replay_old_moves; end
 
   def user_move(who, colour)
-    input = ask_for_move(who, colour)
-    return input if input.is_a? Hash
+    case (move = MoveAlgebra.new(who, colour))
+    when /([sS][aA][vV][eE]|[cC][lL][oO][sS][eE])/
+      return save_game
+    when /(=|[dD][Rr][aA][wW])/
+      return (@draw_proposed = true)
+    when /[rR][eE][sS][iI][gG][nN]/
+      return (@resignation = true)
+    end
+    try(move, colour) || user_move(who, colour)
+  end
 
-    return @draw_proposed = true if input == '=' || /[Dd]raw/.match?(input)
-
-    return @resignation = true if /[Rr]esign/.match? input
-
-    move_hash = algebra_to_vec(input, colour) || (return user_move(who, colour))
-    last_move = @record.empty? ? nil : parse_for_move(@record.last)
-    taken = @board.move(colour, move_hash, last_move)
-    return user_move(who, colour) unless taken
+  def try(move, colour)
+    move_hash = move.to_move_hash || (return false)
+    last_move = @record.empty? ? nil : @record.last.to_move_hash
+    return false unless (taken = @board.move(colour, move_hash, last_move))
 
     @graveyard.add(taken) if taken.is_a?(Piece)
-  end
-
-  def ask_for_move(who, colour)
-    print "#{who} (#{colour == 'w' ? 'white' : 'black'}), describe your move "\
-      'in algebraic notation. (Or save and close the game)  '
-    return save_game if /([Ss]ave|[Cc]lose)/.match?(input = gets)
-
-    input.strip
-  end
-
-  def algebra_to_vec(input, colour)
-    parse_for_castle(input, colour) || parse_for_move(input)
-  end
-
-  def parse_for_move(input)
-    hsh = {}
-    buff = nil
-    while (c = input.slice!(0))
-      case c
-      when /[KkQqRrBNn]/
-        hsh[hsh.empty? ? :piece : :promotee] = PIECES[c.upcase]
-      when /[a-h]/
-        hsh[:file] = buff if buff
-        buff = file_to_index(c)
-      when /[1-8]/
-        if buff
-          hsh[:square] = hsh[:target] if hsh[:target]
-          hsh[:target] = Vector[rank_to_index(c), buff]
-          buff = nil
-        elsif hsh[:piece].nil?
-          return false
-        else hsh[:rank] = rank_to_index(c)
-        end
-      end
-    end
-    hsh[:target] ? hsh : false
-  end
-
-  def parse_for_castle(input, colour)
-    spaces =
-      case input.scan(/[0oO]/).length
-      when 2
-        2
-      when 3
-        -2
-      else (return false)
-      end
-    king_sq = Vector[colour == 'w' ? 0 : 7, 4]
-    { square: king_sq }.merge(target: king_sq + Vector[0, spaces == 2 ? 2 : -2])
-  end
-
-  def file_to_index(char)
-    char.ord - 97
-  end
-
-  def rank_to_index(char)
-    char.to_i - 1
-  end
-
-  def grumble
-    puts
+    true
   end
 
   def propose_draw(who, colour)

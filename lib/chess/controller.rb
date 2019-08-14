@@ -1,6 +1,7 @@
 require 'matrix'
-%w[piece.rb board.rb graveyard.rb game.rb ../series_turn_based.rb
-   series.rb ../controller_turn_based.rb ].each { |f| require_relative(f) }
+%w[piece.rb move_algebra.rb move_hash.rb board.rb graveyard.rb game.rb
+   ../series_turn_based.rb series.rb
+   ../controller_turn_based.rb].each { |f| require_relative(f) }
 
 # Controls Chess series. Only PvP.
 class Chess < TurnBased

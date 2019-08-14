@@ -190,10 +190,12 @@ class Board
 
   def general_grumble(colour, piece_type)
     piece_name = piece_type.to_s.downcase
-    if (piece_count = count_pieces(colour, piece_type)).zero?
+    case count_pieces(colour, piece_type)
+    when 0
       puts "You don't have any #{piece_name}s."
-    else puts "#{piece_count == 1 ? 'Your' : 'No'} #{piece_name} can move to "\
-              'that square.'
+    when 1
+      puts "Your #{piece_name} can't move to that square."
+    else puts "No #{piece_name}s can move to that square."
     end
     false
   end
