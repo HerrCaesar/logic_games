@@ -81,12 +81,24 @@ class Board
     satisfied =
       if (empties = hsh[:empty])
         are_empty?(empties) &&
-          ((unths = hsh[:unthreatened]).nil? || no_threat?(off_colour, unths))
+          (hsh[:unthreatened].nil? || can_castle?(off_colour, hsh))
       elsif hsh[:enemy]
         pawn_take_satisfied?(off_colour, hsh, last_move)
       else true
       end
     satisfied ? hsh.slice(:move_rook, :promotion) : false
+  end
+
+  def can_castle?(threat_colour, hsh)
+    return castle_grumble("'t castle out of check") if @check
+
+    return castle_grumble("'t castle through check") unless
+      hsh[:unthreatened].none? { |square| threatened?(threat_colour, square) }
+
+    return castle_grumble('only castle with one of your rooks') unless
+      (rook = @board[*hsh[:move_rook[:from]]]) && rook.colour != threat_colour
+
+    !rook.moved || castle_grumble("only castle if your rook hasn't moved")
   end
 
   def pawn_take_satisfied?(off_colour, hsh, last_move)
@@ -164,14 +176,6 @@ class Board
     enemy_targeted?(off_colour, e_p_target) ? e_p_target : pawn_grumble
   end
 
-  def no_threat?(threat_colour, squares)
-    return castle_grumble('out of ') if @check
-
-    squares.none? do |square|
-      threatened?(threat_colour, square)
-    end || castle_grumble('through ')
-  end
-
   def threatened?(threat_colour, square)
     @board.any? do |piece|
       piece && piece.colour == threat_colour &&
@@ -194,8 +198,8 @@ class Board
     false
   end
 
-  def castle_grumble(preposition)
-    puts "You can't castle " + preposition + 'check.'
+  def castle_grumble(phrase)
+    puts "You can" + phrase + '.'
     false
   end
 
