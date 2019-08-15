@@ -37,12 +37,12 @@ class ChessGame
   def replay_old_moves; end
 
   def user_move(who, colour)
-    case (move = MoveAlgebra.new(who, colour))
-    when /([sS][aA][vV][eE]|[cC][lL][oO][sS][eE])/
+    case (move = MoveAlgebra.new(who, colour)).downcase
+    when /(save|close)/
       return save_game
-    when /(=|[dD][Rr][aA][wW])/
+    when /(=|draw)/
       return (@draw_proposed = true)
-    when /[rR][eE][sS][iI][gG][nN]/
+    when /resign/
       return (@resignation = true)
     end
     try(move, colour) || user_move(who, colour)
