@@ -3,13 +3,13 @@ class ChessGame
   def initialize(midgame_data = {})
     @board = Board.new
     @graveyard = Graveyard.new
-    @record = []
+    @record = midgame_data[:record] || []
     replay_old_moves unless midgame_data.empty?
     @board.p
   end
 
-  def move(who, which)
-    colour = %w[w b][which]
+  def move(who, _which)
+    colour = %w[w b][@record.length % 2]
     return propose_draw(who, colour) if @draw_proposed
 
     (success = user_move(who, colour)) until success
