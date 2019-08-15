@@ -1,11 +1,15 @@
 # Describes chess moves using Standard Algebraic Notation
 # (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
 class MoveAlgebra < String
-  def initialize(who, colour)
-    @colour = colour
-    print "#{who} (#{colour == 'w' ? 'white' : 'black'}), describe your move "\
-      'in algebraic notation. (Or save and close the game)  '
-    super(gets.strip)
+  def initialize(who: nil, colour: nil, conversion: false, value: nil)
+    if conversion
+      super(value)
+    else
+      @colour = colour
+      print "#{who} (#{colour == 'w' ? 'white' : 'black'}), describe your move "\
+        'in algebraic notation. (Or save and close the game)  '
+      super(gets.strip)
+    end
   end
 
   # Returns MoveHash representing the same move, or false if this is impossible
@@ -32,8 +36,8 @@ class MoveAlgebra < String
              else (return false)
              end
     king_sq = Vector[@colour == 'w' ? 0 : 7, 4]
-    MoveHash.new.merge(square: king_sq,
-                       target: king_sq + Vector[0, spaces == 2 ? 2 : -2])
+    MoveHash.new.merge(target: king_sq + Vector[0, spaces == 2 ? 2 : -2],
+                       square: king_sq).add_piece('k')
   end
 
   def parse_for_move

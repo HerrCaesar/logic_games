@@ -37,7 +37,7 @@ class ChessGame
   def replay_old_moves; end
 
   def user_move(who, colour)
-    case (move = MoveAlgebra.new(who, colour)).downcase
+    case (move = MoveAlgebra.new(who: who, colour: colour)).downcase
     when /(save|close)/
       return save_game
     when /(=|draw)/
@@ -54,7 +54,7 @@ class ChessGame
     return false unless (taken = @board.move(colour, move_hash, last_move))
 
     @graveyard.add(taken) if taken.is_a?(Piece)
-    true
+    @record << move_hash.to_move_algebra
   end
 
   def propose_draw(who, colour)
