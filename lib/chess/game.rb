@@ -9,9 +9,10 @@ class ChessGame
   end
 
   def move(who, which)
+    colour = %w[w b][which]
     return propose_draw(who, colour) if @draw_proposed
 
-    user_move(who, %w[w b][which])
+    user_move(who, colour)
   end
 
   def game_over?(who, which)
