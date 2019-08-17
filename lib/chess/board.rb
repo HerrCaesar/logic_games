@@ -24,12 +24,12 @@ class Board
     p_bottom
   end
 
-  def move(colour, hsh, last_move)
-    return false if (piece = @board[*hsh[:target]]) && piece.colour == colour
+  def make_move(move)
+    return false if move.target_own_piece?(self)
 
-    if hsh[:square]
-      move_w_coords(colour, hsh, last_move)
-    else move_w_piece(colour, hsh, last_move)
+    if move.origin
+      move.move_w_coords(self)
+    else move.move_w_piece(self)
     end
   end
 
@@ -46,47 +46,32 @@ class Board
     false
   end
 
-  private
-
-  # piece: Pawn, file: nil, rank: nil, target: nil, promotee: nil
-  def move_w_coords(colour, hsh, last_move)
-    return false unless
-      (piece = @board[*hsh[:square]]) &&
-      piece.colour == colour &&
-      (conds = piece.conds_of_move(hsh[:target])) &&
-      (extra_changes = satisfied?(colour, conds, last_move))
-
-    suck_it_n_see(colour, piece, hsh[:square], hsh[:target], extra_changes)
-  end
-
-  # piece: Pawn, file: nil, rank: nil, target: nil, promotee: nil
-  def move_w_piece(colour, hsh, last_move)
-    extra_changes = nil
-    piece_type = hsh[:piece] || Pawn
-    piece =
-      possible_squares(hsh).find do |poss_piece|
-        poss_piece.is_a?(piece_type) && poss_piece.colour == colour &&
-          (conds = poss_piece.conds_of_move(hsh[:target], true)) &&
-          (extra_changes = satisfied?(colour, conds, last_move))
-      end
-    return general_grumble(colour, piece_type) unless piece
-
-    suck_it_n_see(colour, piece, piece.square, hsh[:target], extra_changes)
-  end
-
-  # Test conditions for a move to be legal
-  def satisfied?(colour, hsh, last_move = nil)
+  # Test conditions for a move to be legal. Pass last_move if en-passon possible
+  def satisfied?(colour, conds, last_move = nil)
     off_colour = other_colour(colour)
     satisfied =
-      if (empties = hsh[:empty])
+      if (empties = conds[:empty])
         are_empty?(empties) &&
-          (hsh[:unthreatened].nil? || can_castle?(off_colour, hsh))
-      elsif hsh[:enemy]
-        pawn_take_satisfied?(off_colour, hsh, last_move)
+          (conds[:unthreatened].nil? || can_castle?(off_colour, conds))
+      elsif conds[:enemy]
+        pawn_take_satisfied?(off_colour, conds, last_move)
       else true
       end
-    satisfied ? hsh.slice(:move_rook, :promotion) : false
+    satisfied ? conds.slice(:move_rook, :en_passon, :promotion) : false
   end
+
+  def count_pieces(colour, piece_type)
+    piece_count = 0
+    @board.each do |piece|
+      if piece && piece.is_a?(piece_type) && piece.colour == colour
+        piece_count += 1
+        break if piece_count > 1
+      end
+    end
+    piece_count
+  end
+
+  private
 
   def can_castle?(threat_colour, hsh)
     return castle_grumble("'t castle out of check") if @check
@@ -101,64 +86,10 @@ class Board
     !rook.moved || castle_grumble(" only castle if your rook hasn't moved")
   end
 
-  def pawn_take_satisfied?(off_colour, hsh, last_move)
-    (en_passon_target = conds_of_pawn_capture(off_colour, hsh[:enemy])) &&
-      en_passon_target.empty? || last_move == { target: en_passon_target }
-  end
-
-  # Make the move, but move back if in check
-  def suck_it_n_see(colour, piece, origin, target, extra_changes)
-    @board[*origin] = nil
-    taken = @board[*target]
-    @board[*target] = piece
-    piece.move(target, 'out')
-    if check?(colour)
-      puts "You can't move there; you'll be in check."
-      @board[*target] = taken
-      @board[*origin] = piece
-      piece.move(origin, 'back')
-      false
-    else
-      extra_board_changes(colour, extra_changes)
-      taken.is_a?(Piece) ? taken : true
-    end
-  end
-
-  def extra_board_changes(colour, move_rook: nil, promotion: nil)
-    if move_rook
-      rook = @board[*move_rook[:from]]
-      @board[*move_rook[:from]] = nil
-      @board[*move_rook[:to]] = rook
-      rook.move(move_rook[:to])
-    end
-    choose_promotee(colour, promotion) if promotion
-  end
-
-  def choose_promotee(colour, target)
-    puts 'What piece do you want to promote to?'
-    piece_type =
-      case gets.strip
-      when /[qQ]/
-        Queen
-      when /[rRcC]/
-        return (@board[*target] = Rook.new(colour, target[0], target[1], true))
-      when /[bB]/
-        Bishop
-      when /[nNkK]/
-        Knight
-      else (return choose_promotee(target))
-      end
-    @board[*target] = piece_type.new(colour, target[0], target[1])
-  end
-
-  # piece: Pawn, file: nil, rank: nil, target: nil, promotee: nil
-  def possible_squares(hsh)
-    if hsh[:file]
-      @board.column(hsh[:file])
-    elsif hsh[:rank]
-      @board.row(hsh[:rank])
-    else @board
-    end
+  def pawn_take_satisfied?(off_colour, conds, last_move)
+    (required_last_move = conds_of_pawn_capture(off_colour, *conds[:enemy])) &&
+      (!required_last_move.is_a?(String) || last_move == required_last_move &&
+      conds[:en_passon] = conds[:enemy][1])
   end
 
   def are_empty?(squares)
@@ -166,14 +97,15 @@ class Board
   end
 
   # Test if there's an enemy for a pawn to take (can return en-passon condition)
-  def conds_of_pawn_capture(off_colour, (target, e_p_target))
+  def conds_of_pawn_capture(off_colour, target, e_p_target = nil)
     return false unless target
 
     return {} if enemy_targeted?(off_colour, target) # {} because merged later
 
-    return pawn_grumble unless e_p_target
+    return false unless # Not sure #pawn_grumble can work...
+      e_p_target && enemy_targeted?(off_colour, e_p_target)
 
-    enemy_targeted?(off_colour, e_p_target) ? e_p_target : pawn_grumble
+    Move.new(target: e_p_target).to_move_algebra
   end
 
   def threatened?(threat_colour, square)
@@ -188,37 +120,14 @@ class Board
     (piece = @board[*target]) && piece.colour == off_colour
   end
 
-  def general_grumble(colour, piece_type)
-    piece_name = piece_type.to_s.downcase
-    case count_pieces(colour, piece_type)
-    when 0
-      puts "You don't have any #{piece_name}s."
-    when 1
-      puts "Your #{piece_name} can't move to that square."
-    else puts "No #{piece_name}s can move to that square."
-    end
-    false
-  end
-
-  def pawn_grumble
-    puts "A pawn can't move diagonally unless it's capturing."
-    false
-  end
+  # def pawn_grumble
+  #   puts "A pawn can't move diagonally unless it's capturing."
+  #   false
+  # end
 
   def castle_grumble(phrase)
     puts 'You can' + phrase + '.'
     false
-  end
-
-  def count_pieces(colour, piece_type)
-    piece_count = 0
-    @board.each do |piece|
-      if piece && piece.is_a?(piece_type) && piece.colour == colour
-        piece_count += 1
-        break if piece_count > 1
-      end
-    end
-    piece_count
   end
 
   def populate_pawns

@@ -12,7 +12,8 @@ class ChessGame
     colour = %w[w b][which]
     return propose_draw(who, colour) if @draw_proposed
 
-    user_move(who, colour)
+    (success = user_move(who, colour)) until success
+    success
   end
 
   def game_over?(who, which)
@@ -37,7 +38,7 @@ class ChessGame
   def replay_old_moves; end
 
   def user_move(who, colour)
-    case (move = MoveAlgebra.new(who: who, colour: colour)).downcase
+    case (move_alg = MoveAlgebra.new(who: who, colour: colour)).downcase
     when /(save|close)/
       return save_game
     when /(=|draw)/
@@ -45,16 +46,16 @@ class ChessGame
     when /resign/
       return (@resignation = true)
     end
-    try(move, colour) || user_move(who, colour)
+    try(move_alg)
   end
 
-  def try(move, colour)
-    move_hash = move.to_move_hash || (return false)
-    last_move = @record.empty? ? nil : @record.last.to_move_hash
-    return false unless (taken = @board.move(colour, move_hash, last_move))
+  def try(move_alg)
+    move = move_alg.to_move || (return false)
+    move.last_move = @record.last unless @record.empty?
+    return false unless (taken = @board.make_move(move))
 
     @graveyard.add(taken) if taken.is_a?(Piece)
-    @record << move_hash.to_move_algebra
+    @record << move.to_move_algebra
   end
 
   def propose_draw(who, colour)

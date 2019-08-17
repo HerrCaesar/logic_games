@@ -1,5 +1,5 @@
 require 'matrix'
-%w[piece.rb move_algebra.rb move_hash.rb board.rb graveyard.rb game.rb
+%w[piece.rb move_algebra.rb move.rb board.rb graveyard.rb game.rb
    ../series_turn_based.rb series.rb
    ../controller_turn_based.rb].each { |f| require_relative(f) }
 
