@@ -62,19 +62,47 @@ class Move
     MoveAlgebra.new(value: move_alg)
   end
 
-  private
+  # Make the move, but move back if in check
+  def move_without_check?(board, piece, follow_through = nil)
+    move_piece(board, (origin = piece.square), piece)
+    check = board.check?(@colour)
+    if follow_through
+      return clean_up_after_move(board) unless check
+
+      put_back(board, origin, piece)
+      check_grumble
+    else
+      put_back(board, origin, piece)
+      !check
+    end
+  end
 
   # Returns hash whose keys are possible pieces with extra changes as values
-  def possible_moving_pieces(board)
-    board.each_with_object({}) do |poss_piece, all_poss|
-      next unless poss_piece != @piece && poss_piece.is_a?(@piece_type) &&
-                  poss_piece.colour == @colour &&
-                  (conds = poss_piece.conds_of_move(@target, true)) &&
-                  (extra_changes = board.satisfied?(@colour, conds, @last_move))
+  def possible_moving_pieces(board, paths = false)
+    board.each_with_object(paths ? [] : {}) do |poss_piece, all_poss|
+      next unless (result = piece_a_possibility?(board, poss_piece, paths))
 
-      all_poss[poss_piece] = @piece ? {} : extra_changes
-      # Ignore changes if we've already identified the piece - they won't happen
+      if paths
+        all_poss << ((result[:empty] || []) << poss_piece.square)
+        # Squares that can be moved to, to block check from this piece
+      else all_poss[poss_piece] = @piece ? {} : result
+        # Ignore changes if piece already identified - they won't happen
+      end
     end
+  end
+
+  private
+
+  # Can piece make move? If so, returns piece's path, else extra board changes
+  def piece_a_possibility?(board, poss_piece, paths = false)
+    return false unless
+      poss_piece != @piece &&
+      poss_piece.is_a?(@piece_type || Piece) &&
+      poss_piece.colour == @colour &&
+      (conds = poss_piece.conds_of_move(@target, true)) &&
+      (extra_changes = board.satisfied?(@colour, conds, @last_move))
+
+    paths ? conds : extra_changes
   end
 
   def split_poss(dim, dim_val)
@@ -116,21 +144,6 @@ class Move
 
   def eliminate_moves_into_check(piece_n_changes, board)
     piece_n_changes.select! { |piece, _v| move_without_check?(board, piece) }
-  end
-
-  # Make the move, but move back if in check
-  def move_without_check?(board, piece, follow_through = nil)
-    move_piece(board, (origin = piece.square), piece)
-    check = board.check?(@colour)
-    if follow_through
-      return clean_up_after_move(board) unless check
-
-      put_back(board, origin, piece)
-      check_grumble
-    else
-      put_back(board, origin, piece)
-      !check
-    end
   end
 
   def make_move(board)

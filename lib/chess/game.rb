@@ -10,15 +10,15 @@ class ChessGame
   end
 
   def move(who, _which)
-    colour = %w[w b][@record.length % 2]
-    return propose_draw(who, colour) if @draw_proposed
+    @moving_colour = %w[w b][@record.length % 2]
+    return propose_draw(who, @moving_colour) if @draw_proposed
 
-    (success = user_move(who, colour)) until success
+    (success = user_move(who, @moving_colour)) until success
     success
   end
 
   def game_over?(who, which)
-    if @resignation || @board.checkmate?
+    if @resignation || @board.checkmate?(@moving_colour)
       puts "#{who} wins!"
       return which
     elsif @draw_agreed || @board.stalemate?

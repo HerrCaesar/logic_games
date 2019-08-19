@@ -34,12 +34,22 @@ class Board
   end
 
   def check?(colour)
-    king = @board.find { |piece| piece.is_a?(King) && piece.colour == colour }
+    king = find_king(colour)
     threatened?(other_colour(colour), king.square)
   end
 
-  def checkmate?
-    false
+  def checkmate?(attacking_colour)
+    king = find_king((king_colour = other_colour(attacking_colour)))
+    paths = check_paths(attacking_colour, king)
+    return false unless
+      (@check = paths.any?)
+
+    return just_say_check if
+      king_moveable?(king) ||
+      paths.reduce(:&).any? { |sq| threatened?(king_colour, sq, true) }
+
+    puts 'Checkmate'
+    true
   end
 
   def stalemate?
@@ -72,6 +82,15 @@ class Board
   end
 
   private
+
+  def find_king(colour)
+    @board.find { |piece| piece.is_a?(King) && piece.colour == colour }
+  end
+
+  def check_paths(attacking_colour, king)
+    Move.new(colour: attacking_colour, target: king.square)
+        .possible_moving_pieces(self, true)
+  end
 
   def can_castle?(threat_colour, hsh)
     return castle_grumble("'t castle out of check") if @check
@@ -108,11 +127,12 @@ class Board
     Move.new(target: e_p_target).to_move_algebra
   end
 
-  def threatened?(threat_colour, square)
+  def threatened?(threat_colour, square, checkmate_test = false)
     @board.any? do |piece|
       piece && piece.colour == threat_colour &&
+        (!checkmate_test || !piece.is_a?(King)) &&
         (conds = piece.conds_of_move(square, true)) &&
-        satisfied?(threat_colour, conds)
+        (s = satisfied?(threat_colour, conds))
     end
   end
 
@@ -172,5 +192,17 @@ class Board
     7.times { print '╧═══' }
     puts '╝'
     puts '    a   b   c   d   e   f   g   h'
+  end
+
+  def king_moveable?(king)
+    king.possible_targets.any? do |target|
+      move = Move.new(colour: king.colour, target: target)
+      !move.target_own_piece?(self) && move.move_without_check?(self, king)
+    end
+  end
+
+  def just_say_check
+    puts 'Check'
+    false
   end
 end

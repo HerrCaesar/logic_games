@@ -114,6 +114,9 @@ class King < Melee
   def initialize(colour, rank, file = 4)
     @symbol = colour == 'w' ? '♚' : '♔'
     @steps = [Vector[1, 0], Vector[0, 1], Vector[1, 1]].freeze
+    @moves = (@steps +
+              @steps.map { |v| -v } +
+              [Vector[-1, 1], Vector[1, -1]]).freeze
     super
   end
 
@@ -144,6 +147,11 @@ class King < Melee
 
   def castle_queenside
     @square[1] -= 2
+  end
+
+  def possible_targets
+    @moves.map { |v| @square + v }
+          .keep_if { |v| v.all? { |x| x.between?(0, 7) } }
   end
 
   private
