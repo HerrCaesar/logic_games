@@ -212,16 +212,18 @@ class Move
   end
 
   def translate_move
-    alg = PIECES.key(@piece) || ''
+    alg = PIECES.key(@piece_type).dup || ''
     alg << disambiguating_origin_data
     alg << 'x' if @taken
     alg << vector_to_algebra(*@target)
-    alg << PIECES.key(@promotee) if @promotee
+    alg << PIECES.key(@promotee.class) if @promotee
     alg
   end
 
   # Try rank, else file, else origin
   def disambiguating_origin_data
+    return index_to_file(@origin[0]) if @taken && @piece.is_a?(Pawn)
+
     return '' if @extras.empty?
 
     if no_extras_in_row?(0)

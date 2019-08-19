@@ -2,10 +2,10 @@
 # (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
 class MoveAlgebra < String
   def initialize(who: nil, colour: nil, value: nil)
+    @colour = colour
     if value
       super(value)
     else
-      @colour = colour
       print "#{who} (#{colour == 'w' ? 'white' : 'black'}), describe your move"\
         ' in algebraic notation. (Or save and close the game)  '
       super(gets.strip)

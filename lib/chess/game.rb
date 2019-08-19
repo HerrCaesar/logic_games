@@ -3,7 +3,8 @@ class ChessGame
   def initialize(midgame_data = {})
     @board = Board.new
     @graveyard = Graveyard.new
-    @record = midgame_data[:record] || []
+    @record = midgame_data['record'] || []
+    @draw_proposed = midgame_data['draw_proposed']
     replay_old_moves unless midgame_data.empty?
     @board.p
   end
@@ -35,7 +36,12 @@ class ChessGame
 
   private
 
-  def replay_old_moves; end
+  def replay_old_moves
+    @record.each_with_index do |move_str, i|
+      move_alg = MoveAlgebra.new(colour: %w[w b][i % 2], value: move_str)
+      @board.make_move(move_alg.to_move)
+    end
+  end
 
   def user_move(who, colour)
     case (move_alg = MoveAlgebra.new(who: who, colour: colour)).downcase

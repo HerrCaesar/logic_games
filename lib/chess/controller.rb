@@ -18,6 +18,10 @@ class Chess < TurnBased
   def whose_go
     @midgame ? @midgame ^ 1 : @id_of_leader
   end
+
+  def midgame?(midgame_data)
+    @midgame = (moves = midgame_data['record']) ? moves.length % 2 : false
+  end
 end
 
 if /main\.rb$/.match? $PROGRAM_NAME
