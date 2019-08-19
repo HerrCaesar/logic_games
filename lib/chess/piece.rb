@@ -5,10 +5,10 @@ module Virginity
     super(*args)
   end
 
-  def move(target_square, experiment = nil)
-    @moved = if !@moved && experiment == 'out'
+  def move(target_square, back = false)
+    @moved = if !@moved
                'provisionally'
-             else @moved != 'provisionally' || experiment != 'back'
+             else @moved != 'provisionally' || !back
              end
     super(target_square)
   end
