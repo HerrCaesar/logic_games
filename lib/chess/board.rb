@@ -25,7 +25,7 @@ class Board
   end
 
   def make_move(move)
-    return false if move.target_own_piece?(self)
+    return self_target_grumble(move) if move.target_own_piece?(self)
 
     if move.origin
       move.move_w_coords(self)
@@ -144,6 +144,11 @@ class Board
   #   puts "A pawn can't move diagonally unless it's capturing."
   #   false
   # end
+
+  def self_target_grumble(move)
+    puts "You can't move to #{move.vector_to_algebra(*move.target)}; your "\
+      "#{@board[*move.target].class} is there."
+  end
 
   def castle_grumble(phrase)
     puts 'You can' + phrase + '.'

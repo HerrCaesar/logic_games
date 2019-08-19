@@ -91,6 +91,10 @@ class Move
     end
   end
 
+  def vector_to_algebra(rank_i, file_i)
+    index_to_file(file_i) << index_to_rank(rank_i)
+  end
+
   private
 
   # Can piece make move? If so, returns piece's path, else extra board changes
@@ -249,10 +253,6 @@ class Move
 
   def no_extras_in_row?(dim)
     @extras.none? { |piece, _v| piece.square[dim] == @origin[dim] }
-  end
-
-  def vector_to_algebra(rank_i, file_i)
-    index_to_file(file_i) << index_to_rank(rank_i)
   end
 
   def index_to_file(ind)
