@@ -115,7 +115,7 @@ class King < Melee
     @symbol = colour == 'w' ? '♚' : '♔'
     @steps = [Vector[1, 0], Vector[0, 1], Vector[1, 1]].freeze
     @moves = (@steps +
-              @steps.map { |v| -v } +
+              @steps.map(&:-@) +
               [Vector[-1, 1], Vector[1, -1]]).freeze
     super
   end

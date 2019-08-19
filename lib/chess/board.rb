@@ -72,7 +72,7 @@ class Board
 
   def count_pieces(colour, piece_type)
     piece_count = 0
-    @board.each do |piece|
+    each do |piece|
       if piece && piece.is_a?(piece_type) && piece.colour == colour
         piece_count += 1
         break if piece_count > 1
@@ -84,7 +84,7 @@ class Board
   private
 
   def find_king(colour)
-    @board.find { |piece| piece.is_a?(King) && piece.colour == colour }
+    find { |piece| piece.is_a?(King) && piece.colour == colour }
   end
 
   def check_paths(attacking_colour, king)
@@ -128,11 +128,11 @@ class Board
   end
 
   def threatened?(threat_colour, square, checkmate_test = false)
-    @board.any? do |piece|
+    any? do |piece|
       piece && piece.colour == threat_colour &&
         (!checkmate_test || !piece.is_a?(King)) &&
         (conds = piece.conds_of_move(square, true)) &&
-        (s = satisfied?(threat_colour, conds))
+        satisfied?(threat_colour, conds)
     end
   end
 
