@@ -1,7 +1,7 @@
 # Info about a potential chess move
 class Move
-  PIECES = Hash.new(Pawn).merge!('K' => King, 'Q' => Queen, 'R' => Rook,
-                                 'B' => Bishop, 'N' => Knight).freeze
+  PIECE_TYPES = Hash.new(Pawn).merge!('K' => King, 'Q' => Queen, 'R' => Rook,
+                                      'B' => Bishop, 'N' => Knight).freeze
 
   attr_accessor :rank, :file
 
@@ -18,8 +18,8 @@ class Move
   end
 
   def add_piece_type(char)
-    instance_variable_set(@piece_type ? :@promotee : :@piece_type,
-                          PIECES[char.upcase])
+    instance_variable_set(@target ? :@promotee : :@piece_type,
+                          PIECE_TYPES[char.upcase])
     self
   end
 
@@ -171,7 +171,7 @@ class Move
     if (move_rook = @extra_changes[:move_rook])
       move_piece(board, (orig = move_rook[:from]), board[*orig], move_rook[:to])
     elsif @extra_changes[:promotion]
-      (@promotee = choose_promotee(board)) until @promotee
+      promote_pawn(board)
     elsif (pawn_target = @extra_changes[:en_passon])
       @taken = board[*pawn_target]
       board[*pawn_target] = nil
@@ -179,20 +179,27 @@ class Move
     @taken.is_a?(Piece) ? @taken : true
   end
 
-  def choose_promotee(board)
+  def promote_pawn(board)
+    (@promotee = choose_promotee) until @promotee
+    board[*@target] = if @promotee == Rook
+                        @promotee.new(@colour, *@target, true)
+                      else @promotee.new(@colour, *@target)
+                      end
+  end
+
+  def choose_promotee
     puts 'What piece do you want to promote to?'
-    board[*@target] =
-      case gets.strip
-      when /[qQ]/
-        Queen
-      when /[rRcC]/
-        return (board[*@target] = Rook.new(@colour, *@target, true))
-      when /[bB]/
-        Bishop
-      when /[nNkK]/
-        Knight
-      else return false
-      end.new(@colour, *@target)
+    case gets.strip
+    when /[qQ]/
+      Queen
+    when /[rRcC]/
+      Rook
+    when /[bB]/
+      Bishop
+    when /[nNkK]/
+      Knight
+    else return false
+    end
   end
 
   def general_grumble(board)
@@ -229,11 +236,11 @@ class Move
   end
 
   def translate_move
-    alg = PIECES.key(@piece_type).dup || ''
+    alg = PIECE_TYPES.key(@piece_type).dup || ''
     alg << disambiguating_origin_data
     alg << 'x' if @taken
     alg << vector_to_algebra(*@target)
-    alg << PIECES.key(@promotee.class) if @promotee
+    alg << PIECE_TYPES.key(@promotee) if @promotee
     alg
   end
 
