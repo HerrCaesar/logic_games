@@ -89,8 +89,8 @@ class Move
     end
   end
 
-  def vector_to_algebra(rank_i, file_i)
-    index_to_file(file_i) << index_to_rank(rank_i)
+  def vector_to_algebra(vec)
+    index_to_file(vec[1]) << index_to_rank(vec[0])
   end
 
   def move_with_piece_possible?(board, poss_piece, paths = false)
@@ -144,7 +144,10 @@ class Move
     eliminate_moves_into_check(@possibles, board)
     return general_grumble(board) if @possibles.empty?
 
-    return ambiguity_grumble if @possibles.length > 1
+    if @possibles.length > 1
+      x = user_resolves_ambiguity
+      return false unless x
+    end
 
     make_poss_piece
     eliminate_moves_into_check(@extras, board) # After tests before committing
@@ -219,9 +222,32 @@ class Move
     false
   end
 
-  def ambiguity_grumble
-    puts "Be more explicit about which #{@piece_type} you want to move."
-    false
+  def user_resolves_ambiguity
+    location, options = ambiguity_resolution_options(pieces = @possibles.keys)
+    puts "Specify the #{location} of the #{@piece_type} you want:"
+    options.each { |x| print x + ' ' }
+    puts
+    return false unless (ind = options.index(gets.strip))
+
+    @extras = @possibles
+    @possibles = { pieces[ind] => @extras.delete(pieces[ind]) }
+  end
+
+  # When user hasn't been specific enough, lets them choose piece from options
+  def ambiguity_resolution_options(poss_pieces)
+    squares = poss_pieces.map(&:square)
+    [{ dim: 1, name: 'file', fun: :index_to_file },
+     { dim: 0, name: 'rank', fun: :index_to_rank },
+     { dim: 0..1, name: 'square', fun: :vector_to_algebra }].each do |hsh|
+       result = only_piece_type_in_subset(squares, hsh)
+       return result if result
+     end
+  end
+
+  def only_piece_type_in_subset(squares, dim: nil, name: nil, fun: nil)
+    return unless dim.is_a?(Range) || squares.map { |sq| sq[dim] }.uniq!.nil?
+
+    [name, squares.map { |sq| method(fun).call(sq[dim]) }]
   end
 
   def check_grumble
@@ -244,7 +270,7 @@ class Move
     alg = PIECE_TYPES.key(@piece_type).dup || ''
     alg << disambiguating_origin_data
     alg << 'x' if @taken
-    alg << vector_to_algebra(*@target)
+    alg << vector_to_algebra(@target)
     alg << PIECE_TYPES.key(@promotee) if @promotee
     alg
   end
@@ -259,7 +285,7 @@ class Move
       index_to_file(@origin[0])
     elsif no_extras_in_row?(1)
       index_to_rank(@origin[1])
-    else vector_to_algebra(*@origin)
+    else vector_to_algebra(@origin)
     end
   end
 

@@ -165,7 +165,7 @@ class Board
   # end
 
   def self_target_grumble(move)
-    puts "You can't move to #{move.vector_to_algebra(*move.target)}; your "\
+    puts "You can't move to #{move.vector_to_algebra(move.target)}; your "\
       "#{@board[*move.target].class} is there."
   end
 
