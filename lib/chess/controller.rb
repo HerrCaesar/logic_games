@@ -11,6 +11,10 @@ class Chess < TurnBased
 
   private
 
+  def vs_ai?
+    false
+  end
+
   def create_series(s_class)
     super(s_class)
   end
