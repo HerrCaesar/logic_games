@@ -1,14 +1,15 @@
-Play a series of games against the AI or another player, using the command line to enter moves and guesses. You can save and reload any series.
+Play a series of games against the AI or another player using the command line. You can save and reload during any games.
 
 # Mastermind
-- Guess the secret code and get feedback: 'bulls' (correct colours in the right place) and 'cows' (correct colours in the wrong place).
+![AI guessing code in traditional board size](screen_recordings/mastermind_ai_guessing.gif)
+- Guess the secret code and get feedback: correct colours in the right place, and correct colours in the wrong place.
 - Play with up to 8 colours and 8 holes.
 ## 1-Player mode
 - Guess a code randomly chosen by the computer.
 - Choose a code for the AI to guess with its optmal* strategy.
 ## 2-Player mode
 - Enter your code in secret; the computer will give your opponent feedback
-- Guess your opponent's secret word
+- Guess your opponent's secret code
 *Minimizes worst case number of guesses (eg always guesses a 4-hole, 6-colour code in 5 guesses)
 
 # Hangman
