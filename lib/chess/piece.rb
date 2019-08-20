@@ -1,23 +1,11 @@
-# Record whether a piece has moved. Enables castling and 2-step pawn moves
-module Virginity
-  def initialize(*args)
-    @moved = false
-    super(*args)
-  end
-
-  def move(target_square, back = false)
-    @moved = if !@moved
-               'provisionally'
-             else @moved != 'provisionally' || !back
-             end
-    super(target_square)
-  end
-end
-
 # Ancestor of all chess piece objects
 class Piece
   attr_reader :colour
   attr_reader :square
+
+  class << self
+    attr_reader :steps
+  end
 
   def initialize(colour, rank, file)
     @colour = colour
@@ -37,7 +25,16 @@ class Piece
     @taken
   end
 
+  def possible_targets
+    steps.map { |v| @square + v }
+         .keep_if { |v| v.all? { |x| x.between?(0, 7) } }
+  end
+
   private
+
+  def steps
+    self.class.steps
+  end
 
   def grumble(test = false)
     puts "A #{self.class} can't move like that." unless test
@@ -58,6 +55,7 @@ end
 # Moves one square forward or 2 if unmoved; captures diagonally; can be promoted
 class Pawn < Piece
   include Virginity
+  @steps = [Vector[1, 0], Vector[1, 1], Vector[1, -1]]
 
   def initialize(colour, rank, file)
     super
@@ -103,20 +101,19 @@ end
 # Any piece that can only move to certain spaces near them
 class Melee < Piece
   def conds_of_move(target)
-    @steps.include?((target - @square).map!(&:abs))
+    steps.include?(target - @square)
   end
 end
 
 # Moves one space at a time. Can't move into or through check
 class King < Melee
   include Virginity
+  extend RookSteps
+  extend BishopSteps
+  @steps = (rook_steps + bishop_steps).freeze
 
   def initialize(colour, rank, file = 4)
     @symbol = colour == 'w' ? '♚' : '♔'
-    @steps = [Vector[1, 0], Vector[0, 1], Vector[1, 1]].freeze
-    @moves = (@steps +
-              @steps.map(&:-@) +
-              [Vector[-1, 1], Vector[1, -1]]).freeze
     super
   end
 
@@ -149,11 +146,6 @@ class King < Melee
     @square[1] -= 2
   end
 
-  def possible_targets
-    @moves.map { |v| @square + v }
-          .keep_if { |v| v.all? { |x| x.between?(0, 7) } }
-  end
-
   private
 
   def complain(test)
@@ -168,9 +160,12 @@ end
 
 # Moves 2 spaces in on direction and one space in the other. Can jump peices
 class Knight < Melee
+  @steps = ((b = (a = [Vector[2, 1], Vector[1, 2]]) +
+                  a.map { |v| Matrix[[-1, 0], [0, 1]] * v }) +
+             b.map(&:-@)).freeze
+
   def initialize(colour, rank, file)
     @symbol = colour == 'w' ? '♞' : '♘'
-    @steps = [Vector[2, 1], Vector[1, 2]].freeze
     super
   end
 
@@ -185,18 +180,20 @@ class Ranged < Piece
   def conds_of_move(target, test = false)
     move_vector = (target - @square)
     step_vector = move_vector / move_vector[0].gcd(move_vector[1])
-    return grumble(test) unless
-      @movement_vectors.include? step_vector.map(&:abs)
+    return grumble(test) unless steps.include? step_vector
 
-    (steps = each_step_to(target, step_vector)).nil? ? {} : { empty: steps }
+    (path = each_step_to(target, step_vector)).nil? ? {} : { empty: path }
   end
 end
 
 # Moves many spaces along a rank, file or diagonal
 class Queen < Ranged
+  extend RookSteps
+  extend BishopSteps
+  @steps = (rook_steps + bishop_steps).freeze
+
   def initialize(colour, rank, file = 3)
     @symbol = colour == 'w' ? '♛' : '♕'
-    @movement_vectors = [Vector[1, 1], Vector[1, 0], Vector[0, 1]].freeze
     super
   end
 end
@@ -204,11 +201,12 @@ end
 # Moves many spaces along a rank or file
 class Rook < Ranged
   include Virginity
+  extend RookSteps
+  @steps = rook_steps.freeze
   attr_reader :moved
 
   def initialize(colour, rank, file, promotion = false)
     @symbol = colour == 'w' ? '♜' : '♖'
-    @movement_vectors = [Vector[1, 0], Vector[0, 1]].freeze
     super(colour, rank, file)
     @moved = promotion
   end
@@ -221,9 +219,11 @@ end
 
 # Moves many spaces along a diagonal
 class Bishop < Ranged
+  extend BishopSteps
+  @steps = bishop_steps.freeze
+
   def initialize(colour, rank, file)
     @symbol = colour == 'w' ? '♝' : '♗'
-    @movement_vectors = [Vector[1, 1]].freeze
     super
   end
 end

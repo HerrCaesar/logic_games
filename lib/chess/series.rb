@@ -4,11 +4,8 @@ class ChessSeries < TurnBasedSeries
     @game = ChessGame.new(midgame_data)
   end
 
-  private
-
-  def game_over?(which, _latest_move)
-    over = @game.game_over?(which, @names[which ^ 1])
-    over ? @record = @record << (which ^ 1) : @game.p
-    over
+  def p
+    print "Draws - #{draws = @record.count { |out| out == 2 }}; "
+    super(@record.length - draws)
   end
 end

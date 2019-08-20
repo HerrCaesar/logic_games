@@ -11,4 +11,13 @@ class TurnBasedSeries < Series
     p1_wins = @record.count(&:zero?)
     super(p1_wins, games_count - p1_wins)
   end
+
+  private
+
+  def game_over?(which, _latest_move)
+    @game.p
+    over = @game.game_over?(@names[which ^ 1], which)
+    @record << over if over
+    over
+  end
 end

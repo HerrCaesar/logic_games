@@ -1,12 +1,13 @@
 # Describes chess moves using Standard Algebraic Notation
 # (https://en.wikipedia.org/wiki/Algebraic_notation_(chess))
 class MoveAlgebra < String
+  include Colours
   def initialize(who: nil, colour: nil, value: nil)
     @colour = colour
     if value
       super(value)
     else
-      print "#{who} (#{colour == 'w' ? 'white' : 'black'}), describe your move"\
+      print "#{who} (#{word_from(colour)}), describe your move"\
         ' in algebraic notation. (Or save and close the game)  '
       super(gets.strip)
     end

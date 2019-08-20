@@ -23,11 +23,11 @@ class NimGame < Array
     take(choice[0], choice[1] - 1)
   end
 
-  def game_over?(player_id, who)
+  def game_over?(who, player_id)
     return false unless all?(&:zero?)
 
     puts "\n#{who} wins!"
-    player_id
+    player_id ^ 1
   end
 
   def p

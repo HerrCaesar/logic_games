@@ -1,5 +1,6 @@
 # Shared methods between PvP and PvC games
 class ChessGame
+  include Colours
   def initialize(midgame_data = {})
     @board = Board.new
     @graveyard = Graveyard.new
@@ -20,8 +21,8 @@ class ChessGame
   def game_over?(who, which)
     if @resignation || @board.checkmate?(@moving_colour)
       puts "#{who} wins!"
-      return which
-    elsif @draw_agreed || @board.stalemate?
+      return which ^ 1
+    elsif @draw_agreed || @board.stalemate?(@moving_colour)
       puts 'Draw'
       return 2
     end
@@ -65,8 +66,8 @@ class ChessGame
   end
 
   def propose_draw(who, colour)
-    print "#{who} (#{colour}'s), do you agree to a draw? (Or save and close "\
-      'the game)  '
+    print "#{who} (#{word_from(colour)}'s), do you agree to a draw? (Or save "\
+      'and close the game)  '
     return save_game if /(save|close)/.match?(input = gets.downcase)
 
     @draw_agreed = true if /y/.match? input

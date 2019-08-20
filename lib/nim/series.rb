@@ -6,12 +6,4 @@ class NimSeries < TurnBasedSeries
             else PvP.new(@heaps, midgame_data)
             end
   end
-
-  private
-
-  def game_over?(which, _latest_move)
-    over = @game.game_over?(which, @names[which ^ 1])
-    over ? @record = @record << (which ^ 1) : @game.p
-    over
-  end
 end

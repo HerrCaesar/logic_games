@@ -41,19 +41,24 @@ class Board
   def checkmate?(attacking_colour)
     king = find_king((king_colour = other_colour(attacking_colour)))
     paths = check_paths(attacking_colour, king)
-    return false unless
-      (@check = paths.any?)
+    return false unless (@check = paths.any?)
 
     return just_say_check if
-      king_moveable?(king) ||
+      piece_moveable?(king) ||
       paths.reduce(:&).any? { |sq| threatened?(king_colour, sq, true) }
 
     puts 'Checkmate'
     true
   end
 
-  def stalemate?
-    false
+  def stalemate?(attacking_colour)
+    return false if @check || any? do |piece|
+      piece && piece.colour == other_colour(attacking_colour) &&
+      piece_moveable?(piece)
+    end
+
+    puts 'Stalemate'
+    true
   end
 
   # Test conditions for a move to be legal. Pass last_move if en-passon possible
@@ -90,6 +95,20 @@ class Board
   def check_paths(attacking_colour, king)
     Move.new(colour: attacking_colour, target: king.square)
         .possible_moving_pieces(self, true)
+  end
+
+  def piece_moveable?(piece)
+    piece.possible_targets.any? do |target|
+      move = Move.new(colour: piece.colour, target: target)
+      !move.target_own_piece?(self) &&
+        (!piece.is_a?(Pawn) || move.move_with_piece_possible?(self, piece)) &&
+        move.move_without_check?(self, piece)
+    end
+  end
+
+  def just_say_check
+    puts 'Check'
+    false
   end
 
   def can_castle?(threat_colour, hsh)
@@ -197,17 +216,5 @@ class Board
     7.times { print '╧═══' }
     puts '╝'
     puts '    a   b   c   d   e   f   g   h'
-  end
-
-  def king_moveable?(king)
-    king.possible_targets.any? do |target|
-      move = Move.new(colour: king.colour, target: target)
-      !move.target_own_piece?(self) && move.move_without_check?(self, king)
-    end
-  end
-
-  def just_say_check
-    puts 'Check'
-    false
   end
 end

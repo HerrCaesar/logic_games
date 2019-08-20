@@ -4,9 +4,7 @@ class Move
                                       'B' => Bishop, 'N' => Knight).freeze
 
   attr_accessor :rank, :file
-
   attr_reader :origin, :target
-
   attr_writer :last_move
 
   def initialize(colour: nil, origin: nil, target: nil, piece_type: nil)
@@ -95,6 +93,14 @@ class Move
     index_to_file(file_i) << index_to_rank(rank_i)
   end
 
+  def move_with_piece_possible?(board, poss_piece, paths = false)
+    return false unless
+      (conds = poss_piece.conds_of_move(@target, true)) &&
+      (extra_changes = board.satisfied?(@colour, conds, @last_move))
+
+    paths ? conds : extra_changes
+  end
+
   private
 
   # Can piece make move? If so, returns piece's path, else extra board changes
@@ -103,10 +109,9 @@ class Move
       poss_piece != @piece &&
       poss_piece.is_a?(@piece_type || Piece) &&
       poss_piece.colour == @colour &&
-      (conds = poss_piece.conds_of_move(@target, true)) &&
-      (extra_changes = board.satisfied?(@colour, conds, @last_move))
+      (result = move_with_piece_possible?(board, poss_piece, paths))
 
-    paths ? conds : extra_changes
+    result
   end
 
   def split_poss(dim, dim_val)
