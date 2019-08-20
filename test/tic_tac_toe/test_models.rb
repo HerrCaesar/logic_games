@@ -71,7 +71,7 @@ end
 
 # scores
 class ScoresTest < Minitest::Test
-  require_relative '../../lib/tic_tac_toe/state_scores.rb'
+  require_relative '../../lib/additive_state_score.rb'
   def setup
     arr = [
       { score: [0, 1, 1] },

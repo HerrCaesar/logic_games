@@ -3,14 +3,19 @@ require 'o_stream_catcher'
 require 'json'
 require 'date'
 
-require_relative '../../lib/series_root.rb'
-require_relative '../../lib/series_turn_based.rb'
-require_relative '../../lib/tic_tac_toe/series.rb'
-require_relative '../../lib/tic_tac_toe/game.rb'
-require_relative '../../lib/tic_tac_toe/p_v_c_game.rb'
-require_relative '../../lib/tic_tac_toe/board.rb'
-require_relative 'helpers.rb'
-require_relative '../../lib/tic_tac_toe/modules.rb'
+%w[helpers.rb
+   ../../lib/tic_tac_toe/modules.rb
+   ../../lib/tic_tac_toe/board.rb
+   ../../lib/additive_state.rb
+   ../../lib/tic_tac_toe/game_state.rb
+   ../../lib/additive_state_game.rb
+   ../../lib/additive_state_pvc.rb
+   ../../lib/tic_tac_toe/game.rb
+   ../../lib/tic_tac_toe/p_v_c_game.rb
+   ../../lib/series_root.rb
+   ../../lib/series_turn_based.rb
+   ../../lib/additive_state_series.rb
+   ../../lib/tic_tac_toe/series.rb].each { |f| require_relative(f) }
 
 # Create one game class with tester leading, one with AI leading. Save results
 class TestTicTacToe
