@@ -61,7 +61,7 @@ class ChessGame
     move.last_move = @record.last unless @record.empty?
     return false unless (taken = @board.make_move(move))
 
-    @graveyard.add(taken) if taken.is_a?(Piece)
+    @graveyard.insert(taken) if taken.is_a?(Piece)
     @record << move.to_move_algebra
   end
 

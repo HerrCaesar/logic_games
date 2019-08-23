@@ -12,7 +12,7 @@ class Graveyard < Hash
     puts
   end
 
-  def add(piece)
+  def insert(piece)
     colour = piece.colour
     index = self[colour].index { |buried| order(buried) <= order(piece) } || 0
     self[colour].insert(index, piece)
