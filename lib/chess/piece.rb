@@ -10,7 +10,6 @@ class Piece
   def initialize(colour, rank, file)
     @colour = colour
     @square = Vector[rank, file]
-    @taken = false
   end
 
   def move(new_square, _experiment = nil)
@@ -19,10 +18,6 @@ class Piece
 
   def to_s
     @symbol
-  end
-
-  def taken?
-    @taken
   end
 
   def possible_targets
@@ -39,16 +34,6 @@ class Piece
   def grumble(test = false)
     puts "A #{self.class} can't move like that." unless test
     false
-  end
-
-  def each_step_to(target, step_vector, inclusive = false)
-    steps = []
-    current = inclusive ? @square : @square + step_vector
-    until current == target
-      steps << current
-      current += step_vector
-    end
-    steps
   end
 end
 
@@ -108,6 +93,7 @@ end
 # Moves one space at a time. Can't move into or through check
 class King < Melee
   include Virginity
+  include MultipleSteps
   extend RookSteps
   extend BishopSteps
   @steps = (rook_steps + bishop_steps).freeze
@@ -176,6 +162,7 @@ end
 
 # Any piece that can move many spaces in a direction
 class Ranged < Piece
+  include MultipleSteps
   # False if piece can't move there, else return array of all squares in-between
   def conds_of_move(target, test = false)
     move_vector = (target - @square)

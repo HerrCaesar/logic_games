@@ -34,3 +34,16 @@ module BishopSteps
     (pos = [Vector[1, 1], Vector[1, -1]]) + pos.map(&:-@)
   end
 end
+
+# Ranged pieces and kings can move multiple spaces; they need to know the path
+module MultipleSteps
+  def each_step_to(target, step, inclusive = false)
+    steps = []
+    current = inclusive ? @square : @square + step
+    until current == target
+      steps << current
+      current += step
+    end
+    steps
+  end
+end
