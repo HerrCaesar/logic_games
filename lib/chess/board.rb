@@ -10,7 +10,7 @@ class Board
     @board.send(*args, &block)
   end
 
-  def respond_to_missing?(method)
+  def respond_to_missing?(method, *)
     super || @board.respond_to?(method)
   end
 
