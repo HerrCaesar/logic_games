@@ -15,10 +15,6 @@ class Chess < TurnBased
     false
   end
 
-  def create_series(s_class)
-    super(s_class)
-  end
-
   def whose_go
     @midgame ? @midgame ^ 1 : @id_of_leader
   end
