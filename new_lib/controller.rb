@@ -1,48 +1,23 @@
-# Constructs a Series, injecting it with data loaded from save file, or options
-# selected by the user
+# Constructs a Series, injecting dependencies passed from game modules, as well
+# as data loaded from save file, or options selected by the user
 class SeriesInitializer
   attr_reader :series
-  def initialize(series_class)
-    @series = series_class.new
-    @series = set_series_options
+  def self.create_series(game_type, saved_game_retriever = SavedGameRetriever)
+    @series = game_type.new
+    series_options(saved_game_retriever)
   end
 
   private
 
-  def set_series_options
-    retriever = SavedGameRetriever.new(series_class)
-    return Series.set_options unless
-      retriever.file_saved? && retriever.parse_saved_series.any? &&
-      (selector = SavedGameSelector.new(retriever.saved))
-      .offer_load
-      .series_selected?
+  def series_options(saved_game_retriever)
+    retriever = saved_game_retriever.new(game_type)
+    # return series.set_options unless
+    series_data =
+      retriever.prepare_series_options.any? &&
+      SavedGameSelector.new(retriever.saved).offer_load
 
-    series.load(selector.series_data)
-  end
-end
-
-# Retrieves saved series
-class SavedGameRetriever
-  attr_reader :saved
-  def initialize(series_class)
-    @file = 'saved.json'
-    @series_class = series_class
-  end
-
-  def file_saved?
-    File.exist?(@file)
-  end
-
-  def parse_saved_series
-    require 'json'
-    @saved = JSON.parse(File.read(@file)).select do |_key, series_class|
-      series_class['game'] == @series_class
-    end.sort.to_h
-    self
-  end
-
-  def any?
-    @saved.any?
+    series.send(*series_data)
+    # series.load(selector.series_data)
   end
 end
 
@@ -53,16 +28,12 @@ class SavedGameSelector
     @save_hash = save_hash
   end
 
+  # Offer save files (/cancel) to client. It displays & interprets response.
   def offer_load
-    display_saved_files
-    puts 'Select a game to load. Or press enter to create a new game.'
-    until series_data
-      ins = gets.chomp
-      break if ins.empty?
-
-      parse_input(ins)
-    end
-    self
+    {
+      message: 'Select a game to load',
+      options: saved_file_options.merge('' => 'Create a new game')
+    }
   end
 
   def series_selected?
@@ -71,15 +42,7 @@ class SavedGameSelector
 
   private
 
-  def display_saved_files
-    saved.each_with_index { |(key, _val), index| puts "(#{index + 1}) #{key}" }
-  end
-
-  def parse_input(ins)
-    @series_data =
-      if /^\d+$/.match?(ins) && (key = saved.keys[ins.to_i - 1])
-        saved[key]
-      else saved[ins]
-      end
+  def saved_file_options
+    saved.map.with_index { |(key, _val), index| [(index + 1).to_s, key] }.to_h
   end
 end
