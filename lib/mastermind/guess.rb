@@ -37,7 +37,7 @@ class Guess < Array
     self.class.colours.each_with_index do |colour, i|
       return i if colour[0] == part[0]
     end
-    puts "Can't match #{guess} to an available colour."
+    puts "Can't match #{part} to an available colour."
     false
   end
 end
