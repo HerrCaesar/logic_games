@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     colorize (0.8.1)
+    matrix (0.1.0)
     rake (13.0.0)
     rebase (1.1.0)
     ruby-debug-ide (0.7.0)
@@ -12,6 +13,7 @@ PLATFORMS
 
 DEPENDENCIES
   colorize
+  matrix
   rebase
   ruby-debug-ide
 
