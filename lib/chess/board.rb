@@ -202,19 +202,24 @@ class Board
 
   def p_rank(rank)
     print "#{1 + rank} ║"
-    8.times { |file| print(@board[rank, file].to_s.center(3) + '|') }
+    7.times { |file| print(p_square(rank, file) + '|') }
+    print p_square(rank, 7)
   end
 
   def p_mid_divide
-    print "\b║\n  ╟───"
+    print "║\n  ╟───"
     7.times { print '┼───' }
     puts '╢'
   end
 
   def p_bottom
-    print "\b║\n  ╚═══"
+    print "║\n  ╚═══"
     7.times { print '╧═══' }
     puts '╝'
     puts '    a   b   c   d   e   f   g   h'
+  end
+
+  def p_square(rank, file)
+    @board[rank, file].to_s.center(3)
   end
 end
