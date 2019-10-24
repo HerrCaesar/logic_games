@@ -6,6 +6,12 @@ class Connect4 < Additive
   def initialize
     setup(Connect4Series)
   end
+
+  private
+
+  def vs_ai?
+    false
+  end
 end
 
 if /main\.rb$/.match? $PROGRAM_NAME
