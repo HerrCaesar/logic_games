@@ -5,7 +5,7 @@ class Connect4Game < AdditiveStateGame
   def ask_for_move(who, id)
     print "#{who} (#{'●'.colorize(%i[blue red][id])}'s), where would you like"\
       ' to go? (Or save and close the game)  '
-    return save_game(x_or_o) if /(save|close)/.match?(choice = gets.downcase)
+    return save_game(id) if /(save|close)/.match?(choice = gets.downcase)
 
     choice.scan(/\d/)[0]
   end
